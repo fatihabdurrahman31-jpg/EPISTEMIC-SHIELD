@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TUNTAS-TB — Sistem Pendampingan Pengobatan Tuberkulosis</title>
+  <meta name="description" content="TUNTAS-TB adalah sistem pendampingan digital adaptif untuk membantu petugas layanan primer mengenali pasien tuberkulosis yang menghadapi hambatan pengobatan.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#F7F7F2; --surface:#FFFFFF;
+      --text:#1E2A26; --text-muted:#5A6B63; --text-light:#8A9B93;
+      --green:#246B55; --green-dark:#1A4F3F; --green-hover:#1D5A47;
+      --green-light:#DDECE5; --green-faint:#F0F7F3;
+      --yellow:#B7791F; --yellow-bg:#FFF4D6; --yellow-border:#E8C87A;
+      --red:#A43A3A; --red-bg:#FBE6E4; --red-border:#DBA0A0;
+      --border:#D8DED9; --border-light:#EDF1EE;
+      --shadow-xs:0 1px 2px rgba(30,42,38,0.04);
+      --shadow-sm:0 1px 4px rgba(30,42,38,0.07);
+      --shadow-md:0 4px 16px rgba(30,42,38,0.09);
+      --shadow-lg:0 12px 40px rgba(30,42,38,0.12);
+      --r-sm:6px; --r-md:10px; --r-lg:14px;
+      --sidebar-w:248px; --topbar-h:60px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:16px;scroll-behavior:smooth}
+    body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;line-height:1.55;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    button{font-family:inherit;cursor:pointer}
+    input,select,textarea{font-family:inherit}
+    ::-webkit-scrollbar{width:5px;height:5px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+    /* LAYOUT */
+    .layout{display:flex;min-height:100vh;width:100%}
+
+    /* SIDEBAR */
+    .sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+    .sidebar-logo{padding:18px 18px 14px;border-bottom:1px solid var(--border-light)}
+    .logo-row{display:flex;align-items:center;gap:10px}
+    .logo-icon{width:36px;height:36px;background:var(--green);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(36,107,85,0.3)}
+    .logo-wordmark{font-size:15px;font-weight:800;color:var(--green);letter-spacing:-0.4px}
+    .logo-sub{font-size:10.5px;color:var(--text-light);margin-top:1px}
+    .demo-pill{margin:10px 14px 0;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--r-sm);padding:5px 10px;display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--yellow)}
+    .demo-dot{width:6px;height:6px;background:var(--yellow);border-radius:50%;flex-shrink:0;animation:blink 2s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    .sidebar-nav{flex:1;padding:10px;overflow-y:auto}
+    .nav-group-label{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.8px;padding:8px 8px 3px}
+    .nav-item{display:flex;align-items:center;gap:9px;padding:8.5px 10px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .14s;margin-bottom:1px;user-select:none}
+    .nav-item:hover{background:var(--green-faint);color:var(--green)}
+    .nav-item.active{background:var(--green-light);color:var(--green);font-weight:700}
+    .nav-item svg{flex-shrink:0}
+    .nav-badge{margin-left:auto;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10.5px;font-weight:800}
+    .nav-badge.y{background:var(--yellow)}
+    .nav-chip{margin-left:auto;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1px 7px;font-size:10.5px;color:var(--text-muted)}
+    .sidebar-footer{padding:12px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+    .user-avatar{width:34px;height:34px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--green);flex-shrink:0}
+    .user-name{font-size:13px;font-weight:700;color:var(--text)}
+    .user-role{font-size:11px;color:var(--text-muted)}
+
+    /* MAIN */
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+    .topbar{height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:12px;position:sticky;top:0;z-index:50}
+    .topbar-title{font-size:15px;font-weight:700;color:var(--text);flex:1}
+    .topbar-facility{font-size:12.5px;color:var(--text-muted);display:flex;align-items:center;gap:5px}
+    .btn-wa-sim{display:flex;align-items:center;gap:7px;padding:6px 13px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;font-size:12.5px;font-weight:700;color:#2E7D32;transition:.15s;border:1px solid #A5D6A7}
+    .btn-wa-sim:hover{background:#C8E6C9}
+    .page{flex:1;padding:28px;max-width:1080px;width:100%}
+
+    /* TYPOGRAPHY */
+    .page-title{font-size:21px;font-weight:800;letter-spacing:-.5px}
+    .page-sub{font-size:13.5px;color:var(--text-muted);margin-top:3px}
+    .section-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+
+    /* CARDS */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:18px 20px;box-shadow:var(--shadow-sm)}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--r-sm);font-size:13.5px;font-weight:700;cursor:pointer;transition:all .14s;border:none;font-family:inherit;white-space:nowrap}
+    .btn-primary{background:var(--green);color:white}
+    .btn-primary:hover{background:var(--green-hover)}
+    .btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+    .btn-secondary:hover{background:var(--bg);border-color:var(--green);color:var(--green)}
+    .btn-danger{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+    .btn-danger:hover{background:#f5cece}
+    .btn-warning{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-border)}
+    .btn-warning:hover{background:#ffe9a0}
+    .btn-sm{padding:5px 11px;font-size:12.5px}
+    .btn-lg{padding:11px 24px;font-size:14.5px;border-radius:var(--r-md)}
+    .btn-block{width:100%;justify-content:center}
+
+    /* PRIORITY ROWS */
+    .p-row{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:8px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow-xs);position:relative}
+    .p-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--r-md) 0 0 var(--r-md)}
+    .p-row.red::before{background:var(--red)}
+    .p-row.yellow::before{background:var(--yellow)}
+    .p-row.green::before{background:var(--green)}
+    .p-row:hover{border-color:var(--green);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+    .p-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px}
+    .p-icon.red{background:var(--red-bg)}
+    .p-icon.yellow{background:var(--yellow-bg)}
+    .p-icon.green{background:var(--green-light)}
+    .p-info{flex:1;min-width:0}
+    .p-name{font-size:14.5px;font-weight:700}
+    .p-code{font-size:11.5px;color:var(--text-light)}
+    .p-reason{font-size:13px;color:var(--text-muted);margin-top:5px;line-height:1.45}
+    .p-meta{font-size:11.5px;color:var(--text-light);margin-top:5px}
+
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap}
+    .badge.red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+    .badge.yellow{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-border)}
+    .badge.green{background:var(--green-light);color:var(--green);border:1px solid #A8D0BE}
+    .badge.gray{background:var(--bg);color:var(--text-muted);border:1px solid var(--border)}
+    .status-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11.5px;font-weight:700}
+    .status-badge.active{background:var(--green-light);color:var(--green)}
+    .status-badge.pending{background:var(--yellow-bg);color:var(--yellow)}
+    .status-badge.urgent{background:var(--red-bg);color:var(--red)}
+    .status-badge.handling{background:#E3F2FD;color:#1565C0}
+    .status-badge.done{background:var(--bg);color:var(--text-muted);border:1px solid var(--border)}
+
+    /* REASON BOX */
+    .reason-box{display:flex;gap:8px;align-items:flex-start;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:12.5px;color:var(--text-muted);margin-top:8px}
+    .reason-box .ico{flex-shrink:0;margin-top:1px;font-size:13px}
+
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px;box-shadow:var(--shadow-xs)}
+    .stat-value{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
+    .stat-label{font-size:12px;color:var(--text-muted);margin-top:5px}
+    .stat-sub{font-size:11px;color:var(--text-light);margin-top:6px;font-weight:500}
+
+    /* TABLES */
+    .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow-xs)}
+    table{width:100%;border-collapse:collapse;font-size:13.5px}
+    thead th{text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg)}
+    tbody td{padding:11px 14px;border-bottom:1px solid var(--border-light);vertical-align:middle}
+    tbody tr:last-child td{border-bottom:none}
+    tbody tr{cursor:pointer;transition:background .1s}
+    tbody tr:hover td{background:var(--green-faint)}
+
+    /* FORM */
+    .form-label{display:block;font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:5px}
+    .form-input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13.5px;font-family:inherit;color:var(--text);background:var(--surface);transition:.14s}
+    .form-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(36,107,85,.08)}
+    textarea.form-input{resize:vertical;min-height:72px}
+    .form-group{margin-bottom:14px}
+    .search-wrap{position:relative;flex:1}
+    .search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-light);pointer-events:none}
+    .search-input{width:100%;padding:8px 12px 8px 36px;border:1px solid var(--border);border-radius:8px;font-size:13.5px;font-family:inherit;color:var(--text);background:var(--surface);transition:.14s}
+    .search-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(36,107,85,.08)}
+    .filter-sel{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--surface);color:var(--text);cursor:pointer;font-family:inherit}
+    .filter-sel:focus{outline:none;border-color:var(--green)}
+
+    /* ALERTS */
+    .alert{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-radius:var(--r-sm);font-size:13px;margin-bottom:14px}
+    .alert.info{background:var(--green-light);color:var(--green);border:1px solid #A8D0BE}
+    .alert.warn{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-border)}
+    .alert.error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+
+    /* PROGRESS */
+    .progress{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+    .progress-fill{height:100%;border-radius:3px;background:var(--green);transition:width .5s ease}
+    .progress-fill.y{background:var(--yellow)}
+    .progress-fill.r{background:var(--red)}
+
+    /* TIMELINE */
+    .timeline{position:relative;padding-left:24px}
+    .timeline::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:2px;background:var(--border);border-radius:1px}
+    .tl-item{position:relative;margin-bottom:16px}
+    .tl-dot{position:absolute;left:-21px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid var(--surface);box-shadow:0 0 0 2px var(--border)}
+    .tl-dot.r{background:var(--red)}
+    .tl-dot.y{background:var(--yellow)}
+    .tl-dot.g{background:var(--green)}
+    .tl-dot.gray{background:var(--text-light)}
+    .tl-time{font-size:11px;color:var(--text-light);margin-bottom:2px}
+    .tl-content{font-size:13px;color:var(--text);line-height:1.45}
+
+    /* MODAL */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(20,32,28,.32);z-index:200;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+    .overlay.open{display:flex}
+    .modal{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);width:100%;max-width:860px;margin:auto;animation:modal-in .2s ease}
+    @keyframes modal-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    .modal-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:var(--surface);z-index:1;border-radius:var(--r-lg) var(--r-lg) 0 0}
+    .modal-title{font-size:16px;font-weight:800;flex:1}
+    .modal-close{width:32px;height:32px;border-radius:8px;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text-muted);transition:.14s}
+    .modal-close:hover{background:var(--border)}
+    .modal-body{padding:22px 24px}
+
+    /* WA PANEL */
+    .wa-panel{position:fixed;top:0;right:-460px;width:420px;height:100vh;background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 40px rgba(30,42,38,.12);z-index:300;display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1)}
+    .wa-panel.open{right:0}
+    .wa-head{padding:14px 18px;background:#075E54;color:white;display:flex;align-items:center;gap:12px}
+    .wa-head-title{font-size:14.5px;font-weight:700;flex:1}
+    .wa-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:.14s}
+    .wa-close:hover{background:rgba(255,255,255,.25)}
+    .wa-sub{padding:7px 14px;background:#128C7E;color:rgba(255,255,255,.85);font-size:11.5px;font-weight:500}
+    .wa-chat{flex:1;overflow-y:auto;padding:14px;background:#ECE5DD;display:flex;flex-direction:column;gap:6px}
+    .wa-date{text-align:center;font-size:11px;color:#555;background:rgba(255,255,255,.7);border-radius:10px;padding:3px 10px;align-self:center;margin:4px 0}
+    .wa-bub{max-width:82%;padding:7px 11px;border-radius:8px;font-size:13px;line-height:1.4}
+    .wa-bub.out{background:#DCF8C6;align-self:flex-end;border-bottom-right-radius:2px}
+    .wa-bub.in{background:white;align-self:flex-start;border-bottom-left-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.07)}
+    .wa-bub-time{font-size:10px;color:#999;margin-top:3px;text-align:right}
+    .wa-scenarios{padding:14px;border-top:1px solid var(--border);background:var(--surface)}
+    .wa-sc-title{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px}
+    .wa-sc-btn{width:100%;text-align:left;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;background:var(--bg);cursor:pointer;margin-bottom:6px;transition:.14s;font-family:inherit;color:var(--text)}
+    .wa-sc-btn:hover{border-color:var(--green);background:var(--green-light)}
+    .wa-sc-btn strong{display:block;font-weight:700;font-size:13px;margin-bottom:1px}
+    .wa-sc-btn span{font-size:11.5px;color:var(--text-muted)}
+
+    /* TOASTS */
+    .toast-wrap{position:fixed;bottom:22px;right:22px;z-index:1000;display:flex;flex-direction:column;gap:7px}
+    .toast{background:var(--text);color:white;padding:10px 16px;border-radius:10px;font-size:13.5px;font-weight:600;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:9px;animation:toast-in .25s ease;min-width:240px;max-width:360px}
+    .toast.success{background:var(--green)}
+    .toast.error{background:var(--red)}
+    .toast.warning{background:var(--yellow)}
+    @keyframes toast-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    /* MISC */
+    .divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    .flex-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .detail-grid{display:grid;grid-template-columns:1fr 280px;gap:20px}
+    .info-list{display:flex;flex-direction:column;gap:9px}
+    .info-row{display:flex;gap:10px;font-size:13px}
+    .info-key{font-weight:700;color:var(--text-muted);min-width:130px;font-size:12.5px;flex-shrink:0}
+    .info-val{color:var(--text)}
+    .chip{display:inline-flex;align-items:center;padding:2px 9px;background:var(--bg);border:1px solid var(--border);border-radius:20px;font-size:11.5px;color:var(--text-muted);white-space:nowrap}
+    .empty{text-align:center;padding:42px 24px;color:var(--text-muted)}
+    .empty-ico{font-size:34px;margin-bottom:10px}
+    .empty-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px}
+    .empty-text{font-size:13px;line-height:1.5}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .gap-sm{margin-bottom:16px}
+    .gap-md{margin-bottom:24px}
+    .barrier-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:12.5px}
+    .barrier-label{width:155px;color:var(--text-muted)}
+    .barrier-bar-wrap{flex:1}
+    .barrier-count{width:22px;text-align:right;font-weight:700;color:var(--text)}
+    @keyframes fade-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fade-up .2s ease}
+    @media(max-width:900px){
+      .sidebar{transform:translateX(-100%)}
+      .main{margin-left:0}
+      .stats-grid{grid-template-columns:1fr 1fr}
+      .detail-grid{grid-template-columns:1fr}
+      .grid-2{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-row">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+            <path d="M12 4C12 4 9 8 6 10C3 12 2 15 2 17.5C2 19.8 3.5 21 5.5 21C7.5 21 9.5 20 9.5 18V13"/>
+            <path d="M12 4C12 4 15 8 18 10C21 12 22 15 22 17.5C22 19.8 20.5 21 18.5 21C16.5 21 14.5 20 14.5 18V13"/>
+            <line x1="12" y1="4" x2="12" y2="14" stroke-width="2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="logo-wordmark">TUNTAS-TB</div>
+          <div class="logo-sub">Pendampingan Pengobatan TB</div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-pill">
+      <div class="demo-dot"></div>
+      DATA SIMULASI AKTIF
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Menu Utama</div>
+      <div class="nav-item active" id="nav-today" onclick="nav('today')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Hari Ini
+        <span class="nav-badge" id="badge-today">2</span>
+      </div>
+      <div class="nav-item" id="nav-patients" onclick="nav('patients')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Pasien
+        <span class="nav-chip">3</span>
+      </div>
+      <div class="nav-item" id="nav-followup" onclick="nav('followup')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Tindak Lanjut
+        <span class="nav-badge y" id="badge-followup">2</span>
+      </div>
+      <div class="nav-item" id="nav-messages" onclick="nav('messages')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Pesan
+      </div>
+      <div class="nav-item" id="nav-reports" onclick="nav('reports')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Laporan
+      </div>
+      <div class="nav-group-label" style="margin-top:8px">Konfigurasi</div>
+      <div class="nav-item" id="nav-settings" onclick="nav('settings')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Pengaturan
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-avatar">DP</div>
+      <div style="flex:1;min-width:0">
+        <div class="user-name">dr. Dewi Pertiwi</div>
+        <div class="user-role">Petugas TB &middot; Pusk. Menteng</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Hari Ini</div>
+      <div class="topbar-facility">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Puskesmas Menteng
+      </div>
+      <button class="btn-wa-sim" onclick="toggleWA()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        Simulator WhatsApp
+      </button>
+    </div>
+    <div class="page" id="page-root"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal" id="modal-inner"></div>
+</div>
+
+<!-- WA PANEL -->
+<div class="wa-panel" id="wa-panel">
+  <div class="wa-head">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+    <div class="wa-head-title">Simulator WhatsApp</div>
+    <button class="wa-close" onclick="toggleWA()">&#215;</button>
+  </div>
+  <div class="wa-sub">Mode Demo &mdash; Tidak ada nomor pasien nyata yang digunakan</div>
+  <div class="wa-chat" id="wa-chat">
+    <div class="wa-date">Senin, 15 Sep 2026</div>
+    <div class="wa-bub out">
+      <div>Halo, ini pengingat pendampingan kesehatan Anda. Bagaimana jadwal hari ini?<br><br>1. Sudah sesuai jadwal<br>2. Belum sesuai jadwal<br>3. Saya membutuhkan bantuan</div>
+      <div class="wa-bub-time">08:00 &#10003;&#10003;</div>
+    </div>
+  </div>
+  <div class="wa-scenarios">
+    <div class="wa-sc-title">Pilih Skenario Simulasi</div>
+    <button class="wa-sc-btn" onclick="runScenario('stable')">
+      <strong>&#x1F7E2; P-001 Budi S. &mdash; Stabil</strong>
+      <span>Memilih "Sudah sesuai jadwal" &middot; Prioritas tetap Hijau</span>
+    </button>
+    <button class="wa-sc-btn" onclick="runScenario('barrier')">
+      <strong>&#x1F7E1; P-002 Rini M. &mdash; Obat Hampir Habis</strong>
+      <span>Hambatan terdeteksi: obat hampir habis &middot; Prioritas Kuning</span>
+    </button>
+    <button class="wa-sc-btn" onclick="runScenario('stop')">
+      <strong>&#x1F534; P-003 Andi W. &mdash; Ingin Berhenti</strong>
+      <span>Memilih "lelah/ingin berhenti" &middot; Prioritas Merah segera</span>
+    </button>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+const S={
+  page:'today',waOpen:false,
+  patients:[
+    {id:'P001',code:'P-001',name:'Budi S.',phase:'Intensif (Bulan 1)',priority:'green',label:'\u{1F7E2} Hijau',
+     status:'Terpantau',lastCheckin:'08:03 tadi',lastBarrier:null,staff:'dr. Dewi P.',active:true,
+     consent:true,consentDate:'12 Ags 2026',start:'12 Ags 2026',end:'12 Feb 2027',
+     checkinTime:'08:00',phone:'08**-****-**12',
+     reason:'Respons stabil. Tidak ada hambatan selama 7 hari terakhir.',
+     timeline:[
+       {t:'Hari ini 08:03',cls:'g',c:'<strong>Check-in diterima</strong> \u2014 "Sudah sesuai jadwal"'},
+       {t:'Kemarin 08:05',cls:'g',c:'<strong>Check-in diterima</strong> \u2014 "Sudah sesuai jadwal"'},
+       {t:'Sabtu 08:01',cls:'g',c:'<strong>Check-in diterima</strong> \u2014 "Sudah sesuai jadwal"'},
+       {t:'Jumat 08:09',cls:'g',c:'<strong>Check-in diterima</strong> \u2014 "Sudah sesuai jadwal"'},
+       {t:'12 Ags 2026',cls:'gray',c:'<strong>Pasien didaftarkan</strong> \u2014 Persetujuan dicatat, jadwal check-in dibuat'},
+     ],barriers:[],notes:[]},
+    {id:'P002',code:'P-002',name:'Rini M.',phase:'Intensif (Bulan 1)',priority:'yellow',label:'\u{1F7E1} Kuning',
+     status:'Perlu Tindakan',lastCheckin:'08:17 tadi',lastBarrier:'Obat hampir habis',staff:'dr. Dewi P.',active:true,
+     consent:true,consentDate:'1 Sep 2026',start:'1 Sep 2026',end:'1 Mar 2027',
+     checkinTime:'08:00',phone:'08**-****-**34',
+     reason:'Melaporkan obat hampir habis hari ini. Perlu koordinasi pengambilan obat sebelum stok habis.',
+     timeline:[
+       {t:'Hari ini 08:17',cls:'y',c:'<strong>Check-in diterima</strong> \u2014 "Belum sesuai jadwal" \u00b7 Hambatan: <em>obat hampir habis</em>'},
+       {t:'Hari ini 08:16',cls:'y',c:'<strong>Pesan dikirim</strong> \u2014 Permintaan klarifikasi hambatan'},
+       {t:'Kemarin 08:12',cls:'y',c:'<strong>Check-in diterima</strong> \u2014 "Belum sesuai jadwal" \u00b7 Hambatan: <em>lupa</em>'},
+       {t:'3 Sep 2026',cls:'g',c:'<strong>Check-in diterima</strong> \u2014 "Sudah sesuai jadwal"'},
+       {t:'1 Sep 2026',cls:'gray',c:'<strong>Pasien didaftarkan</strong> \u2014 Persetujuan dicatat, jadwal check-in dibuat'},
+     ],barriers:[{name:'Obat hampir habis',n:1},{name:'Lupa',n:2}],notes:[]},
+    {id:'P003',code:'P-003',name:'Andi W.',phase:'Intensif (Bulan 1)',priority:'red',label:'\u{1F534} Merah',
+     status:'Perlu Tindakan',lastCheckin:'Tidak merespons',lastBarrier:'Ingin berhenti / lelah',staff:'dr. Dewi P.',active:true,
+     consent:true,consentDate:'5 Sep 2026',start:'5 Sep 2026',end:'5 Mar 2027',
+     checkinTime:'08:00',phone:'08**-****-**56',
+     reason:'Memilih "ingin berhenti/lelah" kemarin dan tidak merespons hari ini. Belum ada tindak lanjut aktif.',
+     timeline:[
+       {t:'Hari ini 08:00',cls:'r',c:'<strong>Check-in tidak mendapat respons</strong> \u2014 Pesan terkirim, belum ada balasan'},
+       {t:'Kemarin 08:24',cls:'r',c:'<strong>Check-in diterima</strong> \u2014 "Belum sesuai jadwal" \u00b7 Hambatan: <em>lelah/ingin berhenti</em>'},
+       {t:'12 Sep 2026',cls:'y',c:'<strong>Check-in diterima</strong> \u2014 "Belum sesuai jadwal" \u00b7 Hambatan: <em>lupa</em>'},
+       {t:'11 Sep 2026',cls:'g',c:'<strong>Check-in diterima</strong> \u2014 "Sudah sesuai jadwal"'},
+       {t:'5 Sep 2026',cls:'gray',c:'<strong>Pasien didaftarkan</strong> \u2014 Persetujuan dicatat, jadwal check-in dibuat'},
+     ],barriers:[{name:'Ingin berhenti / lelah',n:1},{name:'Lupa',n:1}],notes:[]}
+  ],
+  followups:[
+    {id:'F001',pid:'P003',pcode:'P-003',pname:'Andi W.',
+     cause:'Memilih "ingin berhenti" dan tidak merespons check-in hari ini',
+     due:'Hari ini \u00b7 13.00 WIB',assignee:'dr. Dewi P.',status:'Perlu Segera',scls:'urgent',outcome:null},
+    {id:'F002',pid:'P002',pcode:'P-002',pname:'Rini M.',
+     cause:'Koordinasi pengambilan obat \u2014 stok dilaporkan hampir habis',
+     due:'Hari ini \u00b7 16.00 WIB',assignee:'dr. Dewi P.',status:'Menunggu',scls:'pending',outcome:null},
+  ],
+  messages:[
+    {id:'M1',pcode:'P-001',dir:'out',tpl:'Check-in Harian',status:'dibaca',time:'08:00'},
+    {id:'M2',pcode:'P-001',dir:'in',tpl:null,status:'diterima',time:'08:03'},
+    {id:'M3',pcode:'P-002',dir:'out',tpl:'Check-in Harian',status:'dibaca',time:'08:00'},
+    {id:'M4',pcode:'P-002',dir:'in',tpl:null,status:'diterima',time:'08:15'},
+    {id:'M5',pcode:'P-002',dir:'out',tpl:'Klarifikasi Hambatan',status:'dibaca',time:'08:15'},
+    {id:'M6',pcode:'P-002',dir:'in',tpl:null,status:'diterima',time:'08:17'},
+    {id:'M7',pcode:'P-003',dir:'out',tpl:'Check-in Harian',status:'dikirim',time:'08:00'},
+  ]
+};
+
+const TITLES={today:'Hari Ini',patients:'Pasien',followup:'Tindak Lanjut',messages:'Pesan',reports:'Laporan',settings:'Pengaturan'};
+
+function nav(page){
+  S.page=page;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('nav-'+page);
+  if(el)el.classList.add('active');
+  document.getElementById('topbar-title').textContent=TITLES[page]||page;
+  const root=document.getElementById('page-root');
+  root.innerHTML='';root.className='page fade-up';
+  const pages={today:renderToday,patients:renderPatients,followup:renderFollowup,messages:renderMessages,reports:renderReports,settings:renderSettings};
+  root.innerHTML=(pages[page]||(() =>''))();
+}
+
+// ---- HARI INI ----
+function renderToday(){
+  const red=S.patients.filter(p=>p.priority==='red'&&p.active);
+  const yellow=S.patients.filter(p=>p.priority==='yellow'&&p.active);
+  const green=S.patients.filter(p=>p.priority==='green'&&p.active);
+  const total=red.length+yellow.length;
+  const now=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  return `
+    <div class="gap-md">
+      <div style="font-size:12.5px;color:var(--text-light);margin-bottom:5px">${now} &middot; Puskesmas Menteng</div>
+      <h1 class="page-title">Selamat datang, dr. Dewi</h1>
+      ${total>0?`<div class="alert warn" style="margin-top:14px"><span style="font-size:16px">&#x26A0;&#xFE0F;</span><div><strong>Ada ${total} pasien yang perlu ditinjau hari ini.</strong>${red.length?` ${red.length} prioritas merah memerlukan perhatian segera.`:''}</div></div>`:`<div class="alert info" style="margin-top:14px"><span>&#x2705;</span><div>Tidak ada pasien yang perlu ditinjau saat ini. Check-in berikutnya dijadwalkan pukul 18.00.</div></div>`}
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value" style="color:var(--red)">${red.length}</div><div class="stat-label">Prioritas Merah</div><div class="stat-sub" style="color:var(--red)">Perlu segera</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--yellow)">${yellow.length}</div><div class="stat-label">Prioritas Kuning</div><div class="stat-sub" style="color:var(--yellow)">Perlu ditinjau</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--green)">${green.length}</div><div class="stat-label">Prioritas Hijau</div><div class="stat-sub" style="color:var(--green)">Stabil</div></div>
+      <div class="stat-card"><div class="stat-value">${S.patients.filter(p=>p.active).length}</div><div class="stat-label">Total Pasien Aktif</div><div class="stat-sub">Fase 0 &middot; Simulasi</div></div>
+    </div>
+    ${red.length?`<div class="gap-md"><div class="section-head"><div class="section-label" style="color:var(--red);margin-bottom:0">&#x1F534; Prioritas Merah &mdash; Tindak Lanjut Segera</div></div>${red.map(p=>pRow(p)).join('')}</div>`:''}
+    ${yellow.length?`<div class="gap-md"><div class="section-head"><div class="section-label" style="color:var(--yellow);margin-bottom:0">&#x1F7E1; Prioritas Kuning &mdash; Perlu Ditinjau</div></div>${yellow.map(p=>pRow(p)).join('')}</div>`:''}
+    <div class="gap-md">
+      <div class="section-head"><div class="section-label" style="margin-bottom:0">Ringkasan 7 Hari Terakhir</div><span class="chip">Data Simulasi</span></div>
+      <div class="card">
+        <div class="grid-3" style="gap:22px">
+          <div><div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Tingkat Respons Check-in</div><div style="font-size:24px;font-weight:800;color:var(--green);letter-spacing:-1px">78%</div><div class="progress" style="margin-top:8px"><div class="progress-fill" style="width:78%"></div></div><div style="font-size:11px;color:var(--text-light);margin-top:4px">14 dari 18 check-in dijawab</div></div>
+          <div><div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Hambatan Teridentifikasi</div><div style="font-size:24px;font-weight:800;color:var(--yellow);letter-spacing:-1px">4</div><div style="font-size:11px;color:var(--text-light);margin-top:20px">3&times; lupa &middot; 1&times; obat hampir habis</div></div>
+          <div><div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Tindak Lanjut Selesai</div><div style="font-size:24px;font-weight:800;letter-spacing:-1px">1<span style="font-size:16px;color:var(--text-light)">/3</span></div><div class="progress" style="margin-top:8px"><div class="progress-fill y" style="width:33%"></div></div><div style="font-size:11px;color:var(--text-light);margin-top:4px">2 masih berlangsung</div></div>
+        </div>
+      </div>
+    </div>
+    ${total>0?`<div style="text-align:center;padding:4px 0 20px"><button class="btn btn-primary btn-lg" onclick="openDetail('${red.length?red[0].id:yellow[0].id}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 16 12 12 16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Tinjau Pasien Berikutnya</button></div>`:''}`;
+}
+
+function pRow(p){
+  const icons={red:'&#x1F534;',yellow:'&#x1F7E1;',green:'&#x1F7E2;'};
+  const scls={Terpantau:'active','Perlu Tindakan':'urgent','Sedang Ditangani':'handling'};
+  return `<div class="p-row ${p.priority}" onclick="openDetail('${p.id}')">
+    <div class="p-icon ${p.priority}">${icons[p.priority]}</div>
+    <div class="p-info">
+      <div class="flex-row" style="margin-bottom:4px;gap:6px"><span class="p-name">${p.name}</span><span class="p-code">${p.code}</span><span class="badge ${p.priority}">${p.label}</span><span class="status-badge ${scls[p.status]||'done'}">${p.status}</span></div>
+      <div class="p-reason">${p.reason}</div>
+      <div class="reason-box"><span class="ico">&#x2139;&#xFE0F;</span><span><strong>Alasan mesin aturan:</strong> ${p.reason}</span></div>
+      <div class="p-meta" style="margin-top:6px">Respons terakhir: ${p.lastCheckin}${p.lastBarrier?` &middot; Hambatan: <strong>${p.lastBarrier}</strong>`:''} &middot; Petugas: ${p.staff}</div>
+    </div>
+    <div style="flex-shrink:0"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openDetail('${p.id}')">Tinjau &rarr;</button></div>
+  </div>`;
+}
+
+// ---- PASIEN ----
+function renderPatients(){
+  return `<div class="gap-md"><h1 class="page-title">Pasien</h1><div class="page-sub">Daftar pasien terdaftar di Puskesmas Menteng</div></div>
+  <div class="flex-row gap-sm">
+    <div class="search-wrap"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="srch" placeholder="Cari nama atau kode pasien..." oninput="filterP()"></div>
+    <select class="filter-sel" id="fPri" onchange="filterP()"><option value="">Semua Prioritas</option><option value="red">&#x1F534; Merah</option><option value="yellow">&#x1F7E1; Kuning</option><option value="green">&#x1F7E2; Hijau</option></select>
+    <select class="filter-sel" id="fStat" onchange="filterP()"><option value="">Semua Status</option><option>Perlu Tindakan</option><option>Terpantau</option><option>Sedang Ditangani</option></select>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>Kode / Nama</th><th>Prioritas</th><th>Hambatan Terakhir</th><th>Check-in Terakhir</th><th>Status</th><th>Petugas</th><th></th></tr></thead><tbody id="ptbody">${ptRows(S.patients)}</tbody></table></div>
+  <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-primary" onclick="toast('Fitur daftar pasien baru tersedia di versi produksi','warning')">+ Daftarkan Pasien Baru</button></div>`;
+}
+
+function ptRows(list){
+  if(!list.length)return`<tr><td colspan="7"><div class="empty"><div class="empty-ico">&#x1F50D;</div><div class="empty-title">Tidak ada pasien ditemukan</div></div></td></tr>`;
+  const scls={Terpantau:'active','Perlu Tindakan':'urgent','Sedang Ditangani':'handling'};
+  return list.map(p=>`<tr onclick="openDetail('${p.id}')"><td><div style="font-weight:700">${p.name}</div><div style="font-size:11.5px;color:var(--text-light)">${p.code} &middot; ${p.phase}</div></td><td><span class="badge ${p.priority}">${p.label}</span></td><td style="color:var(--text-muted)">${p.lastBarrier||'<span style="color:var(--text-light)">Tidak ada</span>'}</td><td style="color:var(--text-muted)">${p.lastCheckin}</td><td><span class="status-badge ${scls[p.status]||'done'}">${p.status}</span></td><td style="color:var(--text-muted)">${p.staff}</td><td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openDetail('${p.id}')">Detail</button></td></tr>`).join('');
+}
+
+function filterP(){
+  const q=(document.getElementById('srch')||{}).value?.toLowerCase()||'';
+  const pri=(document.getElementById('fPri')||{}).value||'';
+  const stat=(document.getElementById('fStat')||{}).value||'';
+  const f=S.patients.filter(p=>(!q||p.name.toLowerCase().includes(q)||p.code.toLowerCase().includes(q))&&(!pri||p.priority===pri)&&(!stat||p.status===stat));
+  const tb=document.getElementById('ptbody');if(tb)tb.innerHTML=ptRows(f);
+}
+
+// ---- TINDAK LANJUT ----
+function renderFollowup(){
+  const active=S.followups.filter(f=>f.status!=='Selesai');
+  const done=S.followups.filter(f=>f.status==='Selesai');
+  return `<div class="gap-md"><h1 class="page-title">Tindak Lanjut</h1><div class="page-sub">Daftar tindakan yang perlu diselesaikan &mdash; bukan kalender</div></div>
+  ${active.length===0?`<div class="empty"><div class="empty-ico">&#x2705;</div><div class="empty-title">Semua tindak lanjut selesai</div><div class="empty-text">Tidak ada tindak lanjut yang perlu diselesaikan saat ini.</div></div>`:`<div class="table-wrap"><table><thead><tr><th>Pasien</th><th>Penyebab Eskalasi</th><th>Tenggat</th><th>Penanggung Jawab</th><th>Status</th><th>Hasil</th><th></th></tr></thead><tbody>${active.map(f=>`<tr onclick="openDetail('${f.pid}')"><td><div style="font-weight:700">${f.pname}</div><div style="font-size:11.5px;color:var(--text-light)">${f.pcode}</div></td><td style="color:var(--text-muted);max-width:220px;font-size:13px">${f.cause}</td><td style="font-weight:600;color:${f.status==='Perlu Segera'?'var(--red)':'var(--text)'};font-size:13px">${f.due}</td><td style="color:var(--text-muted);font-size:13px">${f.assignee}</td><td><span class="status-badge ${f.scls}">${f.status}</span></td><td style="color:var(--text-muted);font-size:13px">${f.outcome||'&mdash;'}</td><td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openDetail('${f.pid}')">Tinjau</button></td></tr>`).join('')}</tbody></table></div>`}
+  ${done.length?`<div style="margin-top:20px"><div class="section-label" style="margin-bottom:10px">Selesai</div><div class="table-wrap"><table><thead><tr><th>Pasien</th><th>Penyebab</th><th>Hasil</th></tr></thead><tbody>${done.map(f=>`<tr onclick="openDetail('${f.pid}')"><td><div style="font-weight:700">${f.pname}</div><div style="font-size:11px;color:var(--text-light)">${f.pcode}</div></td><td style="color:var(--text-muted);font-size:13px">${f.cause}</td><td><span class="status-badge done">${f.outcome||'Selesai'}</span></td></tr>`).join('')}</tbody></table></div></div>`:''}`;
+}
+
+// ---- PESAN ----
+function renderMessages(){
+  const sInfo={dijadwalkan:{ico:'&#x1F550;',cls:'done'},dikirim:{ico:'&#x1F4E4;',cls:'pending'},diterima:{ico:'&#x2705;',cls:'active'},dibaca:{ico:'&#x1F441;',cls:'active'},gagal:{ico:'&#x274C;',cls:'urgent'}};
+  return `<div class="gap-md"><h1 class="page-title">Pesan</h1><div class="page-sub">Log pesan WhatsApp &middot; <span class="chip">Data Simulasi</span></div></div>
+  <div class="alert info gap-sm"><span>&#x2139;&#xFE0F;</span><div>Konten pesan pasien tidak ditampilkan penuh untuk menjaga privasi. Kegagalan pengiriman tidak mengubah prioritas pasien secara otomatis.</div></div>
+  <div class="table-wrap"><table><thead><tr><th>Pasien</th><th>Arah</th><th>Template / Keterangan</th><th>Status</th><th>Waktu</th></tr></thead><tbody>${S.messages.map(m=>{const s=sInfo[m.status]||{ico:'&bull;',cls:'done'};return`<tr style="cursor:default"><td style="font-weight:700">${m.pcode}</td><td style="font-size:13px;color:var(--text-muted)">${m.dir==='out'?'&rarr; Keluar (sistem)':'&larr; Masuk (pasien)'}</td><td style="font-size:13px;color:var(--text-muted)">${m.tpl||'[ Balasan pasien ]'}</td><td><span class="status-badge ${s.cls}">${s.ico} ${m.status.charAt(0).toUpperCase()+m.status.slice(1)}</span></td><td style="font-size:12.5px;color:var(--text-light)">${m.time}</td></tr>`;}).join('')}</tbody></table></div>
+  <div style="margin-top:16px"><div class="card" style="background:var(--yellow-bg);border-color:var(--yellow-border)"><div style="font-size:13px;color:var(--yellow)"><strong>&#x26A0;&#xFE0F; Pengingat sistem:</strong> Pesan gagal tidak berarti pasien tidak patuh. Sistem akan mencoba kembali dan tidak mengubah prioritas secara otomatis.</div></div></div>`;
+}
+
+// ---- LAPORAN ----
+function renderReports(){
+  const barriers=[{name:'Lupa',n:3,pct:75},{name:'Obat hampir habis',n:1,pct:25},{name:'Ingin berhenti / lelah',n:1,pct:25},{name:'Tidak nyaman',n:0,pct:0},{name:'Sulit akses layanan',n:0,pct:0}];
+  return `<div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+    <div><h1 class="page-title">Laporan</h1><div class="page-sub">Indikator proses pendampingan &mdash; bukan klaim klinis</div></div>
+    <div class="flex-row"><span class="badge yellow" style="padding:4px 12px">&#x1F4CA; Data Simulasi</span><button class="btn btn-secondary btn-sm" onclick="toast('Ekspor data tersedia di versi produksi','warning')">&darr; Ekspor Agregat</button></div>
+  </div>
+  <div class="alert warn gap-sm"><span>&#x26A0;&#xFE0F;</span><div>Data ini adalah simulasi untuk demonstrasi prototipe. Laporan tidak mengklaim keberhasilan klinis. Outcome klinis memerlukan studi terpisah yang memadai.</div></div>
+  <div class="stats-grid gap-md">
+    <div class="stat-card"><div class="stat-value" style="color:var(--green)">78%</div><div class="stat-label">Tingkat Respons Check-in</div><div class="progress" style="margin-top:10px"><div class="progress-fill" style="width:78%"></div></div><div class="stat-sub">14 dari 18 &middot; 7 hari</div></div>
+    <div class="stat-card"><div class="stat-value">3</div><div class="stat-label">Pasien Aktif</div><div class="stat-sub">Semua fase intensif</div></div>
+    <div class="stat-card"><div class="stat-value" style="color:var(--yellow)">4</div><div class="stat-label">Hambatan Teridentifikasi</div><div class="stat-sub">7 hari terakhir</div></div>
+    <div class="stat-card"><div class="stat-value">2</div><div class="stat-label">Eskalasi Dibuat</div><div class="stat-sub">1 sedang ditangani</div></div>
+  </div>
+  <div class="grid-2 gap-md">
+    <div class="card"><div class="section-label gap-sm">Distribusi Hambatan</div>${barriers.map(b=>`<div class="barrier-row"><div class="barrier-label">${b.name}</div><div class="barrier-bar-wrap"><div class="progress"><div class="progress-fill${b.n===0?' r':b.pct>50?'':' y'}" style="width:${b.pct}%;${b.n===0?'background:var(--border)':''}"></div></div></div><div class="barrier-count">${b.n}</div></div>`).join('')}</div>
+    <div class="card"><div class="section-label gap-sm">Status Tindak Lanjut</div>${[{l:'Perlu Segera',n:1,cls:'red'},{l:'Menunggu',n:1,cls:'yellow'},{l:'Sedang Ditangani',n:0,cls:'green'},{l:'Selesai',n:1,cls:''}].map(s=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:11px"><span class="badge ${s.cls}" style="min-width:145px;justify-content:center">${s.l}</span><div style="flex:1"><div class="progress"><div class="progress-fill ${s.cls==='red'?'r':s.cls==='yellow'?'y':''}" style="width:${s.n>0?40:0}%"></div></div></div><div style="font-weight:800;font-size:15px;width:18px;text-align:right">${s.n}</div></div>`).join('')}<hr class="divider"><div style="font-size:13px;color:var(--text-muted)"><strong>Median waktu respons petugas:</strong> ~2 jam (simulasi)</div><div style="font-size:13px;color:var(--text-muted);margin-top:6px"><strong>Median sinyal merah &rarr; ditinjau:</strong> ~45 menit (simulasi)</div></div>
+  </div>
+  <div class="card"><div class="section-label gap-sm">Kegagalan Pengiriman Pesan</div><div style="font-size:14px;color:var(--green)">&#x2705; Tidak ada kegagalan pengiriman dalam 7 hari terakhir (data simulasi)</div><div style="font-size:12.5px;color:var(--text-light);margin-top:6px">Jika terjadi kegagalan, sistem mencatat log dan mencoba kembali tanpa mengubah prioritas pasien.</div></div>`;
+}
+
+// ---- PENGATURAN ----
+function renderSettings(){
+  return `<div class="gap-md"><h1 class="page-title">Pengaturan</h1><div class="page-sub">Konfigurasi fasilitas, peran, dan sistem</div></div>
+  <div class="grid-2 gap-md">
+    <div class="card"><div class="section-label gap-sm">Profil Fasilitas</div><div class="info-list"><div class="info-row"><span class="info-key">Nama</span><span class="info-val">Puskesmas Menteng</span></div><div class="info-row"><span class="info-key">Zona waktu</span><span class="info-val">WIB (Asia/Jakarta)</span></div><div class="info-row"><span class="info-key">Jam operasional</span><span class="info-val">07:00 &ndash; 16:00</span></div><div class="info-row"><span class="info-key">Pesan darurat</span><span class="info-val">119 / IGD setempat</span></div></div><button class="btn btn-secondary btn-sm" style="margin-top:14px" onclick="toast('Edit profil tersedia di versi produksi','warning')">Edit Profil</button></div>
+    <div class="card"><div class="section-label gap-sm">Anggota &amp; Peran</div>${[{n:'dr. Dewi Pertiwi',r:'Petugas TB',a:'DP'},{n:'Siti Rahayu, AMK',r:'Perawat / Klinis',a:'SR'},{n:'Bachtiar Kusuma',r:'Admin Fasilitas',a:'BK'}].map(m=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div class="user-avatar" style="width:30px;height:30px;font-size:11px">${m.a}</div><div style="flex:1"><div style="font-size:13.5px;font-weight:700">${m.n}</div><div style="font-size:11.5px;color:var(--text-muted)">${m.r}</div></div><span class="status-badge active">Aktif</span></div>`).join('')}<button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="toast('Kelola anggota tersedia di versi produksi','warning')">+ Tambah Anggota</button></div>
+  </div>
+  <div class="grid-2 gap-md">
+    <div class="card"><div class="section-label gap-sm">Template Pesan</div>${[{k:'Check-in Harian',d:'Dikirim setiap hari sesuai jadwal pasien'},{k:'Klarifikasi Hambatan',d:'Dikirim saat pasien memilih "belum sesuai jadwal"'},{k:'Respons Keselamatan',d:'Dipicu saat kata kunci BANTUAN / DARURAT'},{k:'Konfirmasi Berhenti',d:'Saat pasien mengetik STOP'}].map(t=>`<div style="padding:9px 0;border-bottom:1px solid var(--border-light)"><div style="font-weight:700;font-size:13.5px">${t.k}</div><div style="font-size:12px;color:var(--text-muted)">${t.d}</div></div>`).join('')}<button class="btn btn-secondary btn-sm" style="margin-top:12px" onclick="toast('Kelola template tersedia di versi produksi','warning')">Kelola Template</button></div>
+    <div class="card"><div class="section-label gap-sm">Koneksi WhatsApp</div><div class="alert warn" style="margin-bottom:12px"><span>&#x1F536;</span><div><strong>Mode Demo Aktif.</strong> WhatsApp tidak terhubung ke nomor nyata.</div></div><div class="info-list"><div class="info-row"><span class="info-key">Status</span><span style="color:var(--yellow);font-weight:700">Demo / Simulasi</span></div><div class="info-row"><span class="info-key">Nomor pengirim</span><span style="color:var(--text-light)">&mdash; tidak diset</span></div><div class="info-row"><span class="info-key">Webhook</span><span style="color:var(--text-light)">&mdash; tidak aktif</span></div></div><button class="btn btn-primary btn-sm" style="margin-top:14px" onclick="toast('Konfigurasi WhatsApp tersedia di Fase 1 (sandbox)','warning')">Hubungkan WhatsApp API</button></div>
+  </div>
+  <div class="card"><div class="section-label gap-sm">Audit, Privasi &amp; Retensi Data</div><div class="info-list"><div class="info-row"><span class="info-key">Retensi data</span><span class="info-val">5 tahun (sesuai kebijakan fasilitas)</span></div><div class="info-row"><span class="info-key">Enkripsi nomor HP</span><span class="info-val">&#x2705; AES-256 pada lingkungan produksi</span></div><div class="info-row"><span class="info-key">Audit log</span><span class="info-val">&#x2705; Setiap akses, perubahan, ekspor dicatat</span></div><div class="info-row"><span class="info-key">Akses lintas faskes</span><span class="info-val">&#x1F6AB; Dilarang &mdash; dibatasi per facility_id</span></div></div><div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button class="btn btn-secondary btn-sm" onclick="toast('Audit log tersedia di versi produksi','warning')">Lihat Audit Log</button><button class="btn btn-secondary btn-sm" onclick="toast('Ekspor data agregat tersedia di versi produksi','warning')">Ekspor Data Agregat</button></div></div>
+  <div class="card" style="border-color:var(--border-light);background:var(--bg);margin-top:16px"><div style="font-size:12.5px;color:var(--text-muted);line-height:1.6"><strong>&#x26A0;&#xFE0F; Batas Fungsi Sistem:</strong> TUNTAS-TB bukan alat diagnosis, bukan pengganti keputusan klinis, dan bukan rekam medis elektronik utama. Respons pasien diperlakukan sebagai <em>sinyal pendampingan</em> yang harus diverifikasi tenaga kesehatan.</div></div>`;
+}
+
+// ---- DETAIL MODAL ----
+function openDetail(id){
+  const p=S.patients.find(x=>x.id===id);if(!p)return;
+  const icons={red:'&#x1F534;',yellow:'&#x1F7E1;',green:'&#x1F7E2;'};
+  const scls={Terpantau:'active','Perlu Tindakan':'urgent','Sedang Ditangani':'handling'};
+  const acls={red:'error',yellow:'warn',green:'info'};
+  document.getElementById('modal-inner').innerHTML=`
+    <div class="modal-head">
+      <div class="p-icon ${p.priority}" style="flex-shrink:0">${icons[p.priority]}</div>
+      <div style="flex:1;min-width:0">
+        <div class="modal-title">${p.name} <span style="font-weight:500;color:var(--text-muted);font-size:14px">${p.code}</span></div>
+        <div class="flex-row" style="margin-top:4px;gap:6px"><span class="badge ${p.priority}">${p.label}</span><span class="status-badge ${scls[p.status]||'done'}" id="sbar-${id}">${p.status}</span><span class="chip">Data Simulasi</span></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert ${acls[p.priority]} gap-sm"><span style="font-size:16px">${icons[p.priority]}</span><div><strong>Alasan mesin aturan (transparan):</strong> ${p.reason}</div></div>
+      <div class="flex-row gap-sm">
+        <button class="btn btn-primary" onclick="doCallWA('${id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>Hubungi via WhatsApp</button>
+        <button class="btn btn-secondary" onclick="doMarkContacted('${id}')">&#x2713; Tandai Sudah Dihubungi</button>
+        <button class="btn btn-warning" onclick="showNoteForm('${id}')">&#x1F4DD; Catat Hasil</button>
+        ${p.priority==='red'?`<button class="btn btn-danger" onclick="doEscalate('${id}')">&#x2B06; Eskalasi Klinis</button>`:''}
+      </div>
+      <div id="nform-${id}" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;margin-top:12px">
+        <div class="section-label" style="margin-bottom:10px">Catat Hasil Tindak Lanjut</div>
+        <div class="form-group">
+          <label class="form-label">Hasil tindak lanjut *</label>
+          <select class="form-input" id="nout-${id}" style="margin-bottom:9px"><option value="">Pilih hasil...</option><option>Berhasil dihubungi &mdash; pasien menerima dukungan</option><option>Koordinasi pengambilan obat dijadwalkan</option><option>Kunjungan rumah dijadwalkan</option><option>Pasien memerlukan dukungan lanjutan</option><option>Eskalasi ke tenaga klinis</option><option>Tidak berhasil dihubungi &mdash; akan dicoba kembali</option></select>
+          <label class="form-label">Catatan tambahan (opsional)</label>
+          <textarea class="form-input" id="ntxt-${id}" placeholder="Ringkasan hasil percakapan atau rencana lanjutan..." rows="3"></textarea>
+        </div>
+        <div class="flex-row"><button class="btn btn-primary btn-sm" onclick="saveNote('${id}')">Simpan Catatan</button><button class="btn btn-secondary btn-sm" onclick="document.getElementById('nform-${id}').style.display='none'">Batal</button></div>
+      </div>
+      <div class="detail-grid">
+        <div>
+          <div class="section-label gap-sm">Lini Masa Check-in &amp; Tindak Lanjut</div>
+          <div class="timeline" id="tl-${id}">${p.timeline.map(t=>`<div class="tl-item"><div class="tl-dot ${t.cls}"></div><div class="tl-time">${t.t}</div><div class="tl-content">${t.c}</div></div>`).join('')}</div>
+          <hr class="divider">
+          <div class="section-label gap-sm">Catatan Tindak Lanjut</div>
+          <div id="notes-${id}">${p.notes.length===0?`<div style="font-size:13px;color:var(--text-light);padding:8px 0">Belum ada catatan.</div>`:p.notes.map(n=>`<div class="card" style="margin-bottom:8px;padding:11px"><div style="font-size:11.5px;color:var(--text-light);margin-bottom:3px">${n.time} &middot; ${n.by}</div><div style="font-size:13px">${n.text}</div></div>`).join('')}</div>
+        </div>
+        <div>
+          <div class="card gap-sm">
+            <div class="section-label" style="margin-bottom:10px">Informasi Pasien</div>
+            <div class="info-list">
+              <div class="info-row"><span class="info-key">Kode</span><span class="info-val">${p.code}</span></div>
+              <div class="info-row"><span class="info-key">Fase</span><span class="info-val">${p.phase}</span></div>
+              <div class="info-row"><span class="info-key">Mulai</span><span class="info-val">${p.start}</span></div>
+              <div class="info-row"><span class="info-key">Target selesai</span><span class="info-val">${p.end}</span></div>
+              <div class="info-row"><span class="info-key">Jam check-in</span><span class="info-val">${p.checkinTime} WIB</span></div>
+              <div class="info-row"><span class="info-key">Petugas</span><span class="info-val">${p.staff}</span></div>
+              <div class="info-row"><span class="info-key">Persetujuan</span><span class="info-val">&#x2705; ${p.consentDate}</span></div>
+              <div class="info-row"><span class="info-key">Kontak</span><span class="info-val">${p.phone}</span></div>
+            </div>
+          </div>
+          ${p.barriers.length?`<div class="card" style="margin-top:12px"><div class="section-label" style="margin-bottom:10px">Pola Hambatan</div>${p.barriers.map(b=>`<div class="barrier-row"><div class="barrier-label">${b.name}</div><div class="barrier-bar-wrap"><div class="progress"><div class="progress-fill${b.n>=2?' y':''}" style="width:${Math.min(b.n*35,100)}%"></div></div></div><div class="barrier-count">${b.n}&times;</div></div>`).join('')}</div>`:''}
+          <div class="card" style="margin-top:12px;background:var(--bg);border-color:var(--border-light)"><div style="font-size:12px;color:var(--text-muted);line-height:1.55"><strong>Pengingat:</strong> Respons pasien adalah <em>sinyal pendampingan</em>, bukan bukti konsumsi obat. Keputusan klinis tetap pada tenaga kesehatan.</div></div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal(){document.getElementById('overlay').classList.remove('open')}
+function overlayClick(e){if(e.target===document.getElementById('overlay'))closeModal()}
+
+// ---- ACTIONS ----
+function doCallWA(id){toast('Membuka WhatsApp untuk menghubungi pasien... (simulasi)','success');doMarkContacted(id)}
+function doMarkContacted(id){
+  const p=S.patients.find(x=>x.id===id);if(!p)return;
+  if(p.status!=='Sedang Ditangani'){
+    p.status='Sedang Ditangani';
+    p.timeline.unshift({t:'Baru saja',cls:'g',c:'<strong>Petugas menghubungi pasien</strong> \u2014 Ditandai sudah dihubungi'});
+    const fu=S.followups.find(f=>f.pid===id);if(fu&&fu.status!=='Selesai')fu.status='Sedang Ditangani';
+    toast(`${p.name} ditandai sudah dihubungi`,'success');updateBadges();openDetail(id);
+  }else{toast('Pasien sudah ditandai dihubungi sebelumnya','warning')}
+}
+function showNoteForm(id){const f=document.getElementById('nform-'+id);if(f)f.style.display='block'}
+function saveNote(id){
+  const p=S.patients.find(x=>x.id===id);
+  const outcome=(document.getElementById('nout-'+id)||{}).value;
+  const txt=(document.getElementById('ntxt-'+id)||{}).value;
+  if(!outcome){toast('Pilih hasil tindak lanjut terlebih dahulu','warning');return}
+  p.notes.push({time:'Baru saja',by:'dr. Dewi P.',text:`Hasil: ${outcome}${txt?'. '+txt:''}`});
+  p.timeline.unshift({t:'Baru saja',cls:'g',c:`<strong>Catatan tindak lanjut disimpan</strong> \u2014 ${outcome}`});
+  p.status='Sedang Ditangani';
+  const fu=S.followups.find(f=>f.pid===id);if(fu){fu.status='Selesai';fu.outcome=outcome}
+  toast('Catatan berhasil disimpan \u2713','success');updateBadges();openDetail(id);
+}
+function doEscalate(id){
+  const p=S.patients.find(x=>x.id===id);
+  p.timeline.unshift({t:'Baru saja',cls:'r',c:'<strong>Eskalasi ke tenaga klinis dicatat</strong> \u2014 Diteruskan ke dokter/perawat untuk penilaian klinis'});
+  toast('Eskalasi klinis dicatat. Tenaga klinis akan ditangani sesuai SOP.','success');openDetail(id);
+}
+function updateBadges(){
+  const total=S.patients.filter(p=>p.priority!=='green'&&p.active).length;
+  const bt=document.getElementById('badge-today');if(bt){bt.textContent=total;bt.style.display=total?'inline-flex':'none'}
+  const urgFu=S.followups.filter(f=>f.status!=='Selesai').length;
+  const bf=document.getElementById('badge-followup');if(bf){bf.textContent=urgFu;bf.style.display=urgFu?'inline-flex':'none'}
+}
+
+// ---- WHATSAPP SIMULATOR ----
+function toggleWA(){S.waOpen=!S.waOpen;document.getElementById('wa-panel').classList.toggle('open',S.waOpen)}
+function runScenario(sc){
+  const chat=document.getElementById('wa-chat');
+  const now=()=>new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  const addBub=(dir,html,delay=0)=>setTimeout(()=>{
+    const d=document.createElement('div');
+    d.className=`wa-bub ${dir==='out'?'out':'in'}`;
+    d.innerHTML=`<div>${html}</div><div class="wa-bub-time">${now()}${dir==='out'?' \u2713\u2713':''}</div>`;
+    chat.appendChild(d);chat.scrollTop=chat.scrollHeight;
+  },delay);
+  if(sc==='stable'){
+    addBub('in','1',0);addBub('out','Terima kasih sudah check-in! Terus semangat. \ud83d\udcaa',800);
+    setTimeout(()=>{setPriority('P001','green','\u{1F7E2} Hijau','Respons stabil. Tidak ada hambatan teridentifikasi.');toast('\u2705 P-001 Budi S. \u2014 check-in diterima, prioritas tetap Hijau','success')},1000);
+  }else if(sc==='barrier'){
+    addBub('in','2',0);addBub('out','Terima kasih sudah menjawab. Apa hambatan utamanya?<br><br>1. Lupa<br>2. Tidak nyaman setelah minum obat<br>3. Obat hampir habis/habis<br>4. Sulit datang ke layanan<br>5. Sedang lelah atau ingin berhenti<br>6. Lainnya',800);
+    addBub('in','3',2000);addBub('out','Terima kasih sudah memberi tahu. Petugas Anda akan membantu koordinasi pengambilan obat. Mohon tunggu ya.',2800);
+    setTimeout(()=>{setPriority('P002','yellow','\u{1F7E1} Kuning','Melaporkan obat hampir habis. Perlu koordinasi pengambilan obat sebelum stok habis.');toast('\u{1F7E1} P-002 Rini M. \u2014 hambatan terdeteksi, prioritas Kuning','warning')},3200);
+  }else if(sc==='stop'){
+    addBub('in','2',0);addBub('out','Terima kasih sudah menjawab. Apa hambatan utamanya?<br><br>1. Lupa<br>2. Tidak nyaman setelah minum obat<br>3. Obat hampir habis/habis<br>4. Sulit datang ke layanan<br>5. Sedang lelah atau ingin berhenti<br>6. Lainnya',800);
+    addBub('in','5',2000);addBub('out','Kami dengar bahwa Anda merasa lelah. Perasaan itu sangat wajar. Petugas Anda akan menghubungi Anda secepatnya. Ketik PETUGAS jika ingin berbicara sekarang.',2800);
+    setTimeout(()=>{setPriority('P003','red','\u{1F534} Merah','Memilih "ingin berhenti/lelah". Belum ada tindak lanjut aktif. Perlu dihubungi segera.');toast('\u{1F534} P-003 Andi W. \u2014 ingin berhenti! Prioritas Merah \u2014 segera hubungi pasien','error')},3200);
+  }
+}
+function setPriority(id,pri,label,reason){
+  const p=S.patients.find(x=>x.id===id);if(!p)return;
+  p.priority=pri;p.label=label;p.reason=reason;
+  if(pri!=='green')p.status='Perlu Tindakan';
+  const cls={red:'r',yellow:'y',green:'g'}[pri]||'g';
+  p.timeline.unshift({t:'Baru saja',cls,c:`<strong>Prioritas diperbarui ke ${label}</strong> \u2014 ${reason}`});
+  updateBadges();if(S.page==='today')nav('today');
+}
+
+// ---- TOAST ----
+function toast(msg,type=''){
+  const wrap=document.getElementById('toast-wrap');
+  const el=document.createElement('div');
+  el.className=`toast${type?' '+type:''}`;
+  const ico={success:'\u2713',error:'\u2717',warning:'\u26A0'}[type]||'\u2139';
+  el.innerHTML=`<span>${ico}</span><span>${msg}</span>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{el.style.cssText='opacity:0;transform:translateY(6px);transition:.3s';setTimeout(()=>el.remove(),300)},4000);
+}
+
+// ---- INIT ----
+nav('today');
+</script>
+</body>
+</html>
