@@ -1,0 +1,2629 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EPISTEMIC-SHIELD — Arsitektur Pertahanan Epistemik & Verifikasi Multimodal UIN Raden Fatah</title>
+  <meta name="description" content="Sistem Inokulasi Kognitif Sivitas Akademika & Mitigasi Krisis Disinformasi Deepfake Kampus UIN Raden Fatah Palembang">
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            emerald: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+              950: '#022c22',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Canvas Confetti CDN with offline fallback safety -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Radar scan animation */
+    @keyframes radarSweep {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .radar-sweep {
+      animation: radarSweep 7s linear infinite;
+    }
+
+    /* Print styles for official certificates and press statements */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .printable-area, .printable-area * {
+        visibility: visible;
+      }
+      .printable-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+
+  <!-- ================= TOP INSTITUTIONAL BAR ================= -->
+  <div class="bg-slate-950 text-slate-300 text-xs px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 border-b border-slate-800">
+    <div class="flex items-center gap-2">
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="font-semibold text-white tracking-wide">UIN Raden Fatah Palembang</span>
+      <span class="hidden sm:inline text-slate-500">|</span>
+      <span class="hidden sm:inline text-slate-400">Pusat Pertahanan Epistemik & Forensik Siber Sivitas Akademika</span>
+    </div>
+    <div class="flex items-center gap-3 text-[11px]">
+      <span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700 font-mono">
+        Semester Gasal 2026/2027
+      </span>
+      <span id="critical-alert-badge" class="flex items-center gap-1 text-rose-400 font-medium bg-rose-950/60 px-2 py-0.5 rounded border border-rose-800/60">
+        <svg class="w-3 h-3 text-rose-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span id="critical-count-text">2 Kasus Kritis Aktif</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- ================= MAIN HEADER NAVIGATION ================= -->
+  <header class="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand & Emblem -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchMode('student')">
+        <div class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-md border border-slate-700">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-slate-900 text-lg tracking-tight">
+              EPISTEMIC<span class="text-emerald-600">-SHIELD</span>
+            </h1>
+            <span class="bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+              v1.0-PROD
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">
+            Inokulasi Kognitif & Verifikasi Multimodal Deepfake Kampus
+          </p>
+        </div>
+      </div>
+
+      <!-- Controls & Role Switcher -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Dual Mode Switcher -->
+        <div class="bg-slate-100 p-1 rounded-xl border border-slate-200 flex items-center shadow-inner">
+          <button id="btn-mode-student" onclick="switchMode('student')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-slate-900 shadow-sm border border-slate-200/80">
+            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            <span>Portal Mahasiswa</span>
+            <span class="hidden md:inline text-[10px] text-slate-400 font-normal">(PWA)</span>
+          </button>
+          <button id="btn-mode-admin" onclick="switchMode('admin')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span>Command Center</span>
+            <span class="hidden md:inline text-[10px] text-slate-400 font-normal">(Rektorat)</span>
+          </button>
+        </div>
+
+        <!-- Phone Mockup Frame Toggle (Student Mode) -->
+        <button id="btn-toggle-phone" onclick="togglePhoneFrame()" title="Ubah Tampilan Frame HP / Layar Penuh" class="hidden lg:flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-xs font-medium transition-colors">
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <span id="phone-toggle-text">Mockup HP</span>
+        </button>
+
+        <!-- Gemini AI Settings Button -->
+        <button onclick="openApiKeyModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-medium text-slate-700 transition-all">
+          <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span class="hidden sm:inline">Gemini AI</span>
+          <span id="gemini-status-badge" class="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 font-bold">
+            1.5 Flash Aktif
+          </span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main id="app-root" class="flex-1 py-6">
+
+    <!-- ======================================================== -->
+    <!--                   VIEW: PORTAL MAHASISWA                -->
+    <!-- ======================================================== -->
+    <div id="view-student" class="max-w-4xl mx-auto px-4 sm:px-6 space-y-6">
+
+      <!-- Student Profile Strip & SOS Trigger -->
+      <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-700 text-white flex items-center justify-center font-bold font-mono text-sm shadow">
+            MF
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-sm text-slate-900">Mgs. Muhammad Fatih Abdurrahman</h3>
+              <span class="text-[10px] font-mono bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">
+                NIM: 2320801042
+              </span>
+            </div>
+            <p class="text-xs text-slate-500">
+              Sistem Informasi (Kampus B Jakabaring) • Fakultas Sains dan Teknologi
+            </p>
+          </div>
+        </div>
+
+        <!-- SOS Crisis Button -->
+        <button onclick="openDistressModal()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-2 hover:scale-[1.02]">
+          <svg class="w-4 h-4 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <span>Tombol Darurat SOS</span>
+        </button>
+      </div>
+
+      <!-- Student Sub-Tabs -->
+      <div class="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200/80 overflow-x-auto">
+        <button id="stab-prebunking" onclick="switchStudentTab('prebunking')" class="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-white text-slate-900 shadow-sm border border-slate-200/80">
+          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          <span>Inokulasi Kognitif</span>
+          <span id="badge-scenarios-progress" class="text-[10px] px-1.5 py-0.5 rounded font-mono bg-emerald-50 text-emerald-700 font-bold">
+            0/3 Selesai
+          </span>
+        </button>
+        <button id="stab-scanner" onclick="switchStudentTab('scanner')" class="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900">
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          <span>Pemindai Cepat AI</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded font-mono bg-slate-200 text-slate-600">Multimodal</span>
+        </button>
+        <button id="stab-badge" onclick="switchStudentTab('badge')" class="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900">
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+          <span>Lencana SKPI</span>
+          <span id="badge-points-tag" class="text-[10px] px-1.5 py-0.5 rounded font-mono bg-slate-200 text-slate-600">96 Poin</span>
+        </button>
+      </div>
+
+      <!-- PANEL 1: INOKULASI KOGNITIF (PREBUNKING) -->
+      <div id="panel-prebunking" class="space-y-6">
+
+        <!-- Module Selector & Progress Bar -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <span id="scenario-category-badge" class="text-[10px] font-bold tracking-wider uppercase font-mono bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full border border-indigo-200">
+                MODUL 1 DARI 3 • FORENSIK AKUSTIK
+              </span>
+              <h2 id="scenario-title" class="text-lg font-bold text-slate-900 mt-1">
+                Modul 1: Deteksi Kloning Suara AI (Vocal Synthesis)
+              </h2>
+              <p id="scenario-subtitle" class="text-xs text-slate-500">
+                Analisis Spektrogram & Ritme Fisiologis Paru-paru
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="prevScenario()" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+              </button>
+              <span id="scenario-step-indicator" class="text-xs font-mono font-bold text-slate-700">1 / 3</span>
+              <button onclick="nextScenario()" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Scenario Narrative Box -->
+          <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 text-xs text-slate-700 leading-relaxed flex items-start gap-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+              <strong class="font-bold text-slate-900 block mb-0.5">Skenario Simulasi Serangan Siber Kampus:</strong>
+              <p id="scenario-narrative">
+                Anda menerima pesan suara darurat di WhatsApp yang terdengar persis seperti Dekan Fakultas Anda. Suara tersebut meminta Anda segera mengirimkan uang pendaftaran seminar internasional ke nomor rekening pribadi dalam waktu 30 menit.
+              </p>
+            </div>
+          </div>
+
+          <!-- Interactive Media Preview Section -->
+          <div id="media-interactive-container" class="space-y-3">
+            <!-- Audio Waveform Visualizer (Module 1) -->
+            <div id="audio-visualizer-box" class="bg-slate-950 rounded-2xl p-4 border border-slate-800 text-white">
+              <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span class="font-mono text-emerald-300">Rekaman_Suara_Dekan_Bansos.mp3</span>
+                </div>
+                <span class="text-[10px] font-mono bg-rose-950 text-rose-300 px-2 py-0.5 rounded border border-rose-800">
+                  Zona Anomali Terdeteksi (00:04 - 00:09)
+                </span>
+              </div>
+
+              <!-- Canvas Waveform -->
+              <canvas id="waveform-canvas" width="600" height="90" class="w-full h-24 rounded-lg bg-slate-900 border border-slate-800"></canvas>
+
+              <div class="flex items-center justify-between mt-3 pt-2 border-t border-slate-800/80">
+                <div class="flex items-center gap-2">
+                  <button id="btn-audio-play" onclick="toggleAudioSimulation()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+                    <svg id="audio-play-icon" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <span id="audio-play-text">Putar Rekaman Sampel</span>
+                  </button>
+                  <span id="audio-time-label" class="text-xs font-mono text-slate-400">00:00 / 00:15</span>
+                </div>
+                <span class="text-[11px] text-slate-400 italic">
+                  Perhatikan ketiadaan tarikan napas fisiologis pada gelombang merah.
+                </span>
+              </div>
+            </div>
+
+            <!-- Visual Warping Comparison (Module 2) -->
+            <div id="video-comparison-box" class="hidden bg-slate-900 rounded-2xl p-4 border border-slate-800 text-white space-y-3">
+              <div class="flex items-center justify-between text-xs text-slate-300">
+                <span class="font-bold flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                  Perbandingan Frame Video: Rektor Asli vs Deepfake Lip-Sync
+                </span>
+                <span class="text-[10px] font-mono bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-800">
+                  Wav2Lip + Neural Blending
+                </span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="bg-slate-950 p-3 rounded-xl border border-emerald-900/60">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-emerald-400 font-bold">1. Rekaman Asli (Ground Truth)</span>
+                    <span class="text-[10px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded">Wisuda 2024</span>
+                  </div>
+                  <div class="h-32 bg-slate-800 rounded-lg flex flex-col items-center justify-center p-3 text-center border border-slate-700">
+                    <svg class="w-8 h-8 text-emerald-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    <p class="text-[11px] text-slate-300">Pantulan cahaya kornea mata kiri dan kanan konsisten ke arah sumber lampu aula.</p>
+                  </div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-rose-900/60">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-rose-400 font-bold">2. Video Sintetis Hasil Swap</span>
+                    <span class="text-[10px] bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded">Jitter Blur</span>
+                  </div>
+                  <div class="h-32 bg-slate-800 rounded-lg flex flex-col items-center justify-center p-3 text-center border border-rose-800/80">
+                    <svg class="w-8 h-8 text-rose-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <p class="text-[11px] text-rose-200">Garis rahang mengalami distorsi kabur saat kepala menoleh ke samping.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Emotional Breakdown (Module 3) -->
+            <div id="emotional-heuristic-box" class="hidden bg-slate-900 rounded-2xl p-4 border border-slate-800 text-white space-y-3">
+              <div class="flex items-center justify-between text-xs text-slate-300">
+                <span class="font-bold flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  Dekonstruksi Umpan Kognitif & Amygdala Hijacking
+                </span>
+                <span class="text-[10px] font-mono bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-800">
+                  System 1 vs System 2
+                </span>
+              </div>
+              <div class="p-3 bg-purple-950/40 rounded-xl border border-purple-800/60 text-xs text-purple-200 space-y-1.5">
+                <p><strong>Taktik Utama:</strong> Menggabungkan desakan waktu ("Tersisa 12 Menit!") dan keuntungan finansial besar (Bansos Rp15 Juta) untuk memicu <em>System 1 Thinking</em> korban agar bertindak impulsif sebelum akal kritis sempat memverifikasi.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Forensic Clues List -->
+          <div>
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              Indikator Forensik yang Perlu Diinspeksi:
+            </h4>
+            <div id="forensic-clues-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <!-- Clues injected by JS -->
+            </div>
+          </div>
+
+          <!-- Challenge Question & Multiple Choices -->
+          <div class="pt-4 border-t border-slate-200 space-y-3">
+            <h3 id="challenge-question-text" class="text-sm font-bold text-slate-900 leading-snug">
+              Dengarkan sampel vokal tiruan di atas. Indikator fisiologis utama apa yang membuktikan bahwa audio tersebut adalah kloningan AI dan bukan suara manusia asli?
+            </h3>
+            <div id="quiz-options-list" class="space-y-2">
+              <!-- Options injected by JS -->
+            </div>
+
+            <!-- Explanation & Socratic Feedback Banner -->
+            <div id="quiz-feedback-box" class="hidden p-4 rounded-xl text-xs space-y-2 border">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+
+          <!-- Next Button / Socratic AI Tutor Drawer Trigger -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+            <button onclick="toggleSocraticDrawer()" class="px-3.5 py-2 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold flex items-center gap-2 transition-all">
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+              <span>Diskusi dengan Tutor Sokratik AI</span>
+            </button>
+
+            <button id="btn-next-action" onclick="handleNextStep()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all">
+              <span>Lanjut ke Modul Berikutnya</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Socratic Tutor Chat Drawer -->
+        <div id="socratic-drawer" class="hidden bg-white rounded-2xl p-5 border border-indigo-200 shadow-md space-y-4 animate-in fade-in">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                AI
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-slate-900">Tutor Sokratik Epistemik UIN Raden Fatah</h4>
+                <p class="text-[10px] text-slate-500">Dialog kritis non-judgmental terbimbing (Gemini 1.5 Flash)</p>
+              </div>
+            </div>
+            <button onclick="toggleSocraticDrawer()" class="text-slate-400 hover:text-slate-700 text-xs">✕ Tutup</button>
+          </div>
+
+          <!-- Chat messages area -->
+          <div id="tutor-chat-box" class="space-y-3 max-h-72 overflow-y-auto pr-1 text-xs">
+            <div class="flex items-start gap-2.5">
+              <div class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">T</div>
+              <div class="bg-indigo-50/70 border border-indigo-100 p-3 rounded-xl rounded-tl-none text-slate-800 leading-relaxed">
+                Assalamu'alaikum! Selamat datang di sesi inokulasi kritis. Jangan ragu untuk mendiskusikan apa pun yang Anda amati pada materi ini. Menurut hipotesis Anda, aspek apa yang paling mencurigakan dari skenario ini?
+              </div>
+            </div>
+          </div>
+
+          <!-- Socratic Suggested Prompts -->
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            <button onclick="sendQuickPrompt('Mengapa jeda napas menjadi kelemahan model vokal AI?')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
+              🗣️ Kenapa jeda napas penting?
+            </button>
+            <button onclick="sendQuickPrompt('Bagaimana cara memverifikasi pantulan cahaya pada mata?')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
+              👁️ Uji pantulan cahaya kornea?
+            </button>
+            <button onclick="sendQuickPrompt('Mengapa penipu selalu memakai teknik countdown 15 menit?')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
+              ⏳ Taktik desakan waktu palsu?
+            </button>
+          </div>
+
+          <!-- Input row -->
+          <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+            <input id="tutor-input" type="text" placeholder="Tuliskan analisis atau pertanyaan Anda di sini..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-indigo-500" onkeydown="if(event.key==='Enter')sendTutorMessage()">
+            <button onclick="sendTutorMessage()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors">
+              Kirim
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PANEL 2: PEMINDAI CEPAT AI (MULTIMODAL SCANNER) -->
+      <div id="panel-scanner" class="hidden space-y-6">
+
+        <!-- Upload & Preset Section -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+          <div>
+            <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full font-mono">
+              ENGINE PEMINDAI CEPAT SIBER
+            </span>
+            <h2 class="text-xl font-bold text-slate-900 mt-1">
+              Pemindai Multimodal Deepfake & Provenance Kriptografis (C2PA)
+            </h2>
+            <p class="text-xs text-slate-500">
+              Unggah file media (video, audio rekaman WA, atau foto tangkapan layar) untuk diuji keasliannya secara otomatis.
+            </p>
+          </div>
+
+          <!-- Drag and Drop Box -->
+          <div class="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-2xl p-6 text-center bg-slate-50/60 hover:bg-emerald-50/20 transition-all cursor-pointer" onclick="triggerFileInput()">
+            <input type="file" id="real-file-input" class="hidden" onchange="handleManualFileUpload(event)">
+            <div class="w-12 h-12 rounded-2xl bg-white text-emerald-600 border border-slate-200 shadow-sm flex items-center justify-center mx-auto mb-3">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            </div>
+            <h4 class="font-bold text-sm text-slate-800">Klik untuk memilih file atau seret ke sini</h4>
+            <p class="text-xs text-slate-500 mt-1">Mendukung file MP4, MP3, WAV, JPG, PNG hingga 50MB</p>
+          </div>
+
+          <!-- Preset Samples for Quick Demo -->
+          <div>
+            <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-2">
+              Atau Uji Coba Sampel Preset Kampus:
+            </span>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <button onclick="runSampleScan(0)" class="p-3 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 hover:bg-emerald-50/30 text-left transition-all group">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] font-mono bg-rose-100 text-rose-800 font-bold px-1.5 py-0.2 rounded">Audio Kloning</span>
+                  <span class="text-[10px] text-slate-400">1.4 MB</span>
+                </div>
+                <div class="font-bold text-xs text-slate-900 group-hover:text-emerald-700 truncate">Voice_Memo_Rektor_Bansos_15Jt.mp3</div>
+                <p class="text-[11px] text-slate-500 mt-1">Umpan penipuan beasiswa lewat pesan suara WhatsApp</p>
+              </button>
+
+              <button onclick="runSampleScan(1)" class="p-3 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 hover:bg-emerald-50/30 text-left transition-all group">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] font-mono bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded">Asli C2PA</span>
+                  <span class="text-[10px] text-slate-400">8.7 MB</span>
+                </div>
+                <div class="font-bold text-xs text-slate-900 group-hover:text-emerald-700 truncate">Video_Pengumuman_KRS_Puskom.mp4</div>
+                <p class="text-[11px] text-slate-500 mt-1">Video resmi bertanda tangan digital PTIPD kampus</p>
+              </button>
+
+              <button onclick="runSampleScan(2)" class="p-3 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 hover:bg-emerald-50/30 text-left transition-all group">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] font-mono bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded">Ambigu / Parodi</span>
+                  <span class="text-[10px] text-slate-400">3.2 MB</span>
+                </div>
+                <div class="font-bold text-xs text-slate-900 group-hover:text-emerald-700 truncate">Viral_Tiktok_Parodi_Dosen_Kartun.mp4</div>
+                <p class="text-[11px] text-slate-500 mt-1">Konten satir mahasiswa tanpa niat jahat/penipuan</p>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scanning Progress State -->
+        <div id="scan-progress-box" class="hidden bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4 text-center">
+          <div class="w-12 h-12 rounded-full border-4 border-emerald-200 border-t-emerald-600 animate-spin mx-auto"></div>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900">Memproses Ingesti Multimodal & C2PA Provenance...</h3>
+            <p id="scan-step-text" class="text-xs text-slate-500 mt-1">Membaca Manifest Kriptografi C2PA & Metadata EXIF...</p>
+          </div>
+          <div id="scan-logs-box" class="bg-slate-950 text-emerald-400 font-mono text-[11px] p-3 rounded-xl text-left max-h-32 overflow-y-auto space-y-1">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Scan Result Card -->
+        <div id="scan-result-box" class="hidden space-y-4">
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-5">
+            <!-- Verdict Banner -->
+            <div id="scan-verdict-banner" class="p-4 rounded-xl border flex flex-wrap items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <div id="scan-verdict-icon" class="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-lg">
+                  !
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span id="scan-verdict-tag" class="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded">
+                      SYNTHETIC
+                    </span>
+                    <span id="scan-timestamp-tag" class="text-xs text-slate-400 font-mono"></span>
+                  </div>
+                  <h3 id="scan-verdict-title" class="font-bold text-base text-slate-900 mt-0.5">
+                    Indikasi Rekayasa Tinggi (Synthetic Anomaly)
+                  </h3>
+                </div>
+              </div>
+
+              <!-- Integrity Score Gauge -->
+              <div class="text-right">
+                <span class="text-[10px] text-slate-400 uppercase font-mono block">Indeks Integritas</span>
+                <div class="flex items-baseline gap-1">
+                  <span id="scan-integrity-score" class="text-3xl font-black font-mono text-slate-900">18</span>
+                  <span class="text-xs font-mono text-slate-400">/ 100</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Plain Indonesian Summary -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed">
+              <strong class="text-slate-900 block mb-1">Kesimpulan Analisis Bahasa Indonesia:</strong>
+              <p id="scan-summary-text"></p>
+            </div>
+
+            <!-- Provenance & C2PA Manifest Card -->
+            <div class="bg-slate-900 text-white p-4 rounded-xl border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold flex items-center gap-1.5 text-emerald-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                  Manifest Provenance Kriptografis (C2PA)
+                </span>
+                <span id="scan-c2pa-status" class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800">
+                  Signature Tidak Valid
+                </span>
+              </div>
+              <div id="scan-c2pa-details" class="text-xs text-slate-300 space-y-1 font-mono text-[11px]">
+                <!-- Injected by JS -->
+              </div>
+            </div>
+
+            <!-- Anomalies & Psychological Bait Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Anomalies list -->
+              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                <h4 class="font-bold text-xs text-slate-800 uppercase tracking-wide">
+                  Anomali Forensik Terdeteksi
+                </h4>
+                <div id="scan-anomalies-list" class="space-y-2 text-xs">
+                  <!-- Injected by JS -->
+                </div>
+              </div>
+
+              <!-- Psychological Bait -->
+              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                <h4 class="font-bold text-xs text-slate-800 uppercase tracking-wide">
+                  Analisis Umpan Psikologis (Social Engineering)
+                </h4>
+                <div id="scan-psych-bait" class="space-y-1.5 text-xs text-slate-700">
+                  <!-- Injected by JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200">
+              <button onclick="shareResultWhatsApp()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center gap-2 transition-colors">
+                <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+                <span>Bagikan Peringatan ke WhatsApp</span>
+              </button>
+
+              <button id="btn-report-command" onclick="reportActiveScanToCommandCenter()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span>Eskalasi ke Command Center Satgas</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PANEL 3: LENCANA SKPI (DIGITAL CREDENTIAL CERTIFICATE) -->
+      <div id="panel-badge" class="hidden space-y-6">
+
+        <!-- Banner Header -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                TERAKREDITASI SKPI RESMI
+              </span>
+              <span class="text-xs text-slate-500 font-mono">No: SKPI-UINRF-2026-08492</span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900">
+              Digital Epistemic Badge (Verifiable Credential)
+            </h2>
+            <p class="text-xs text-slate-600">
+              Bukti kompetensi literasi ketahanan kognitif dan forensik AI sivitas akademika UIN Raden Fatah Palembang.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="window.print()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+              <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+              <span>Cetak / Simpan PDF</span>
+            </button>
+            <button id="btn-sync-siakad" onclick="syncToSiakad()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span id="siakad-btn-text">Sinkronisasi ke SIAKAD</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Printable Certificate Box -->
+        <div class="printable-area bg-gradient-to-br from-white via-emerald-50/20 to-slate-50 rounded-3xl p-8 border-2 border-emerald-600/30 shadow-xl relative overflow-hidden">
+          <!-- Institutional Watermark Emblem Background -->
+          <div class="absolute -right-12 -bottom-12 w-80 h-80 opacity-5 pointer-events-none text-emerald-900 flex items-center justify-center">
+            <svg class="w-full h-full" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.516L20.297 19H3.703L12 5.516zM11 10h2v4h-2zm0 6h2v2h-2z"/></svg>
+          </div>
+
+          <!-- Certificate Header -->
+          <div class="text-center border-b-2 border-slate-800/10 pb-6 mb-6">
+            <div class="inline-flex items-center gap-2 mb-2">
+              <div class="w-8 h-8 rounded-lg bg-slate-900 text-emerald-400 flex items-center justify-center font-bold text-xs">UIN</div>
+              <span class="text-xs uppercase font-extrabold tracking-widest text-slate-800">
+                UNIVERSITAS ISLAM NEGERI RADEN FATAH PALEMBANG
+              </span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              SURAT KETERANGAN PENDAMPING IJAZAH (SKPI)
+            </h1>
+            <p class="text-xs font-semibold text-emerald-700 tracking-widest uppercase mt-1">
+              SERTIFIKASI KOMPETENSI PERTAHANAN EPISTEMIK & ETIKA AI GENERATIF
+            </p>
+          </div>
+
+          <!-- Certificate Recipient Details -->
+          <div class="space-y-6 text-center">
+            <div>
+              <p class="text-xs text-slate-500 uppercase tracking-wider">Diberikan secara sah kepada:</p>
+              <h2 class="text-2xl font-black text-slate-900 mt-1 font-serif">
+                Mgs. Muhammad Fatih Abdurrahman
+              </h2>
+              <div class="flex items-center justify-center gap-2 text-xs font-mono text-slate-600 mt-1">
+                <span>NIM: <strong>2320801042</strong></span>
+                <span>•</span>
+                <span>Program Studi Sistem Informasi</span>
+                <span>•</span>
+                <span>Fakultas Sains dan Teknologi</span>
+              </div>
+            </div>
+
+            <!-- Achievement Statement -->
+            <div class="max-w-xl mx-auto bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-slate-200/80 text-xs text-slate-700 leading-relaxed shadow-sm">
+              Telah lulus uji inokulasi kognitif multimodal tingkat lanjut dengan predikat <strong>Unggul (Nilai: 96/100)</strong>. Memiliki kecakapan forensik dalam membongkar manipulasi audio sintetik, anomali deepfake spasial, dan resistensi terhadap bias rekayasa sosial siber.
+            </div>
+
+            <!-- Credential Metrics Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto text-left">
+              <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-[10px] text-slate-400 block uppercase font-mono">Bobot Akademik</span>
+                <span class="text-xs font-bold text-slate-900">1.5 SKS Ekuivalen</span>
+              </div>
+              <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-[10px] text-slate-400 block uppercase font-mono">Tanggal Terbit</span>
+                <span class="text-xs font-bold text-slate-900">20 September 2026</span>
+              </div>
+              <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-[10px] text-slate-400 block uppercase font-mono">Status Verifikasi</span>
+                <span class="text-xs font-bold text-emerald-700">RESMI TERDAFTAR</span>
+              </div>
+              <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-[10px] text-slate-400 block uppercase font-mono">Kampus</span>
+                <span class="text-xs font-bold text-slate-900">Jakabaring (B)</span>
+              </div>
+            </div>
+
+            <!-- QR Code & Cryptographic Ledger Hash -->
+            <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-2xl mx-auto border-t border-slate-200/60 text-left">
+              <div class="flex items-center gap-3">
+                <!-- Inline SVG QR Code -->
+                <div class="w-16 h-16 bg-white p-1.5 rounded-xl border border-slate-300 shadow-xs shrink-0 flex items-center justify-center">
+                  <svg class="w-full h-full text-slate-900" viewBox="0 0 100 100" fill="currentColor">
+                    <rect x="0" y="0" width="30" height="30" />
+                    <rect x="5" y="5" width="20" height="20" fill="white" />
+                    <rect x="10" y="10" width="10" height="10" />
+                    <rect x="70" y="0" width="30" height="30" />
+                    <rect x="75" y="5" width="20" height="20" fill="white" />
+                    <rect x="80" y="10" width="10" height="10" />
+                    <rect x="0" y="70" width="30" height="30" />
+                    <rect x="5" y="75" width="20" height="20" fill="white" />
+                    <rect x="10" y="80" width="10" height="10" />
+                    <rect x="40" y="10" width="10" height="10" />
+                    <rect x="40" y="30" width="20" height="10" />
+                    <rect x="10" y="40" width="10" height="20" />
+                    <rect x="30" y="50" width="10" height="10" />
+                    <rect x="50" y="50" width="20" height="10" />
+                    <rect x="40" y="70" width="10" height="20" />
+                    <rect x="60" y="70" width="20" height="10" />
+                    <rect x="80" y="40" width="10" height="20" />
+                    <rect x="80" y="80" width="10" height="10" />
+                  </svg>
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400 font-mono block">CRYPTOGRAPHIC INTEGRITY HASH (SHA-256):</span>
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <code class="text-[11px] font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                      sha256:e3b0c442...991b7852b855
+                    </code>
+                    <button onclick="copyHashText('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855')" class="p-1 rounded hover:bg-slate-200 text-slate-500" title="Salin Hash">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    </button>
+                  </div>
+                  <span class="text-[10px] text-emerald-700 font-medium">Valid & Tersinkronisasi pada Ledger Digital Kampus</span>
+                </div>
+              </div>
+
+              <!-- Official Signatures -->
+              <div class="text-right text-xs">
+                <span class="text-[10px] text-slate-400 block">Palembang, 20 September 2026</span>
+                <p class="font-bold text-slate-900 mt-2">Prof. Dr. Nyayu Khodijah, S.Ag., M.Si.</p>
+                <p class="text-[10px] text-slate-500">Rektor UIN Raden Fatah Palembang</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ======================================================== -->
+    <!--                  VIEW: ADMIN COMMAND CENTER             -->
+    <!-- ======================================================== -->
+    <div id="view-admin" class="hidden max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
+
+      <!-- Admin Top Banner -->
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-bold text-slate-800 bg-slate-200/80 px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              REKTORAT & SATGAS PPKS UIN RADEN FATAH
+            </span>
+            <span class="text-xs text-emerald-700 font-semibold font-mono">
+              ● Sistem Pertahanan Epistemik Aktif
+            </span>
+          </div>
+          <h2 class="text-2xl font-black tracking-tight text-slate-900">
+            Epistemic Command Center (Pusat Kendali Siber Kampus)
+          </h2>
+          <p class="text-xs text-slate-500">
+            Platform mitigasi krisis disinformasi, verifikasi forensik tripartit, dan kepatuhan SKPI.
+          </p>
+        </div>
+      </div>
+
+      <!-- Metric KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Ancaman Aktif Hari Ini</span>
+            <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xs">
+              !
+            </div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="metric-threats-count" class="text-3xl font-extrabold text-slate-900 font-mono">2</span>
+            <span class="text-xs font-semibold text-rose-600">+1 dalam 2 jam</span>
+          </div>
+          <p class="text-[11px] text-slate-500">Klaster disinformasi menargetkan pimpinan & sivitas</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Volume Pemindaian</span>
+            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-extrabold text-slate-900 font-mono">1,420</span>
+            <span class="text-xs font-semibold text-emerald-600">+24% pekan ini</span>
+          </div>
+          <p class="text-[11px] text-slate-500">Total verifikasi media via WhatsApp & Web Scanner</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Waktu Tanggap Krisis (SLA)</span>
+            <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-extrabold text-slate-900 font-mono">28</span>
+            <span class="text-xs text-slate-500 font-medium">Menit</span>
+            <span class="text-xs font-semibold text-emerald-600 ml-auto bg-emerald-50 px-1.5 py-0.5 rounded">
+              Target &lt; 45m
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-500">Dari deteksi viral hingga rilis klarifikasi resmi</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kepatuhan SKPI Kampus</span>
+            <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-extrabold text-slate-900 font-mono">91.4%</span>
+            <span class="text-xs font-semibold text-emerald-600">8 Fakultas</span>
+          </div>
+          <p class="text-[11px] text-slate-500">18.670 mahasiswa terinokulasi literasi deepfake</p>
+        </div>
+      </div>
+
+      <!-- Admin Sub-Navigation Tabs -->
+      <div class="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 overflow-x-auto">
+        <button id="atab-radar" onclick="switchAdminTab('radar')" class="flex-1 min-w-[170px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-slate-900 text-white shadow-sm">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8zm0-14a6 6 0 106 6 6 6 0 00-6-6zm0 10a4 4 0 114-4 4 4 0 01-4 4zm0-6a2 2 0 102 2 2 2 0 00-2-2z"/></svg>
+          <span>Radar Ancaman & Sebaran</span>
+          <span class="text-[10px] px-2 py-0.5 rounded font-mono bg-slate-800 text-emerald-300 font-bold border border-slate-700">Real-Time</span>
+        </button>
+        <button id="atab-triage" onclick="switchAdminTab('triage')" class="flex-1 min-w-[170px] py-2.5 px-4 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900">
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+          <span>Konsol Triage HITL</span>
+          <span id="triage-pending-badge" class="text-[10px] px-2 py-0.5 rounded font-mono bg-slate-200 text-slate-600">2 Perlu Tindakan</span>
+        </button>
+        <button id="atab-analytics" onclick="switchAdminTab('analytics')" class="flex-1 min-w-[170px] py-2.5 px-4 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900">
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>Kepatuhan SKPI Fakultas</span>
+          <span class="text-[10px] px-2 py-0.5 rounded font-mono bg-slate-200 text-slate-600">8 Fakultas</span>
+        </button>
+      </div>
+
+      <!-- ADMIN TAB 1: RADAR ANCAMAN -->
+      <div id="apanel-radar" class="space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <!-- Radar Visual Box -->
+          <div class="lg:col-span-1 bg-slate-950 text-white rounded-3xl p-6 border border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden">
+            <!-- Concentric circles -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+              <div class="w-72 h-72 border border-emerald-500 rounded-full"></div>
+              <div class="absolute w-52 h-52 border border-emerald-500 rounded-full"></div>
+              <div class="absolute w-32 h-32 border border-emerald-500 rounded-full"></div>
+              <div class="absolute w-full h-px bg-emerald-500/50"></div>
+              <div class="absolute h-full w-px bg-emerald-500/50"></div>
+            </div>
+
+            <!-- Radar Sweep Beam -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div class="w-72 h-72 rounded-full border border-transparent bg-gradient-to-tr from-emerald-500/20 via-transparent to-transparent radar-sweep"></div>
+            </div>
+
+            <!-- Radar Header -->
+            <div class="relative z-10 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] uppercase tracking-widest font-mono text-emerald-400 font-bold flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                  RADAR SEBARAN AKTIF
+                </span>
+                <span class="text-[10px] font-mono bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800">
+                  PULSE: 120ms
+                </span>
+              </div>
+              <h3 class="font-bold text-base">Klaster Sebaran Kampus</h3>
+              <p class="text-xs text-slate-400">
+                Monitoring frekuensi transmisi konten sintetis di 84 grup angkatan & media sosial Palembang.
+              </p>
+            </div>
+
+            <!-- Radar Nodes Map Representation -->
+            <div class="relative z-10 h-64 flex items-center justify-center my-4">
+              <!-- Center Node (UIN Kampus) -->
+              <div class="w-10 h-10 rounded-full bg-slate-900 border-2 border-emerald-400 text-emerald-300 flex items-center justify-center font-mono text-xs font-bold shadow-lg">
+                UIN
+              </div>
+
+              <!-- Node 1: Critical Rektor Scholarship -->
+              <div onclick="inspectIncidentCase('inc-001-rektor-scholarship')" class="absolute top-10 right-12 cursor-pointer group" title="Klik untuk investigasi kasus">
+                <span class="relative flex h-5 w-5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-5 w-5 bg-rose-600 border border-white items-center justify-center text-[9px] font-bold">!</span>
+                </span>
+                <span class="absolute -bottom-5 -left-12 bg-slate-900/90 text-[10px] text-rose-300 font-mono px-1.5 py-0.5 rounded border border-rose-800/80 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                  WA: Fake Beasiswa (Viral)
+                </span>
+              </div>
+
+              <!-- Node 2: NCII Telegram -->
+              <div onclick="inspectIncidentCase('inc-002-ncii-distress')" class="absolute bottom-12 left-10 cursor-pointer group" title="Klik untuk investigasi aduan">
+                <span class="relative flex h-5 w-5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-5 w-5 bg-rose-600 border border-white items-center justify-center text-[9px] font-bold">!</span>
+                </span>
+                <span class="absolute -bottom-5 -left-8 bg-slate-900/90 text-[10px] text-rose-300 font-mono px-1.5 py-0.5 rounded border border-rose-800/80 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                  TG: NCII Cloth-Swap
+                </span>
+              </div>
+
+              <!-- Node 3: Parodi Dosen -->
+              <div onclick="inspectIncidentCase('inc-003-satire-parody')" class="absolute top-28 left-8 cursor-pointer group" title="Klik untuk periksa status">
+                <span class="relative flex h-4 w-4">
+                  <span class="relative inline-flex rounded-full h-4 w-4 bg-amber-500 border border-white items-center justify-center text-[8px] font-bold">~</span>
+                </span>
+                <span class="absolute -bottom-5 -left-8 bg-slate-900/90 text-[10px] text-amber-300 font-mono px-1.5 py-0.5 rounded border border-amber-800/80 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                  TikTok: Parodi Sidang
+                </span>
+              </div>
+            </div>
+
+            <!-- Footer Stats -->
+            <div class="relative z-10 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+              <span>Klaster Aktif: <strong class="text-white">2 Anomali</strong></span>
+              <button onclick="switchAdminTab('triage')" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1">
+                Buka Triage →
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Threats Feed Column -->
+          <div class="lg:col-span-2 space-y-4">
+            <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                <div>
+                  <h3 class="font-bold text-base text-slate-900">Umpan Deteksi Serangan Siber & Insiden Aktif</h3>
+                  <p class="text-xs text-slate-500">Daftar kasus yang memerlukan tindakan atau klarifikasi pimpinan.</p>
+                </div>
+                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+                  <button onclick="filterRadarPlatform('all')" class="px-2.5 py-1 rounded-lg bg-white shadow-xs text-slate-900 font-bold">Semua</button>
+                  <button onclick="filterRadarPlatform('WhatsApp Grup')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900">WhatsApp</button>
+                  <button onclick="filterRadarPlatform('Telegram')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900">Telegram</button>
+                  <button onclick="filterRadarPlatform('TikTok')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900">TikTok</button>
+                </div>
+              </div>
+
+              <!-- List of Incident Cards -->
+              <div id="radar-incident-cards" class="space-y-3">
+                <!-- Injected by JS -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ADMIN TAB 2: TRIAGE KONSOL HITL -->
+      <div id="apanel-triage" class="hidden space-y-6">
+
+        <!-- Live SLA Countdown & Header -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full font-mono">
+                HUMAN-IN-THE-LOOP (HITL) CONSOLE
+              </span>
+              <span class="text-xs text-rose-600 font-semibold flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                SLA Wajib Klarifikasi &lt; 45 Menit
+              </span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900">
+              Antrean Triage Insiden & Verifikasi Multimodal
+            </h2>
+            <p class="text-xs text-slate-600">
+              Daftar laporan anomali deepfake yang memerlukan evaluasi tim forensik sebelum disiarkan ke publik kampus.
+            </p>
+          </div>
+
+          <!-- Countdown timer widget -->
+          <div class="bg-rose-50 border border-rose-200 px-4 py-2.5 rounded-2xl flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold text-xs">
+              <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase font-bold text-rose-700 block">SLA Target Rilis Kasus Teratas</span>
+              <span id="sla-countdown-display" class="text-lg font-black font-mono text-rose-900">00:18:42</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-slate-500">Filter Severity:</span>
+            <button onclick="filterTriageSeverity('ALL')" class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white shadow-xs">Semua</button>
+            <button onclick="filterTriageSeverity('CRITICAL')" class="px-3 py-1 rounded-lg text-xs font-semibold bg-rose-100 text-rose-800 hover:bg-rose-200">Kritis</button>
+            <button onclick="filterTriageSeverity('LOW')" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300">Rendah / Parodi</button>
+          </div>
+
+          <div class="w-full sm:w-64">
+            <input id="triage-search-input" type="text" placeholder="Cari kode kasus atau kata kunci..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-slate-800" oninput="renderTriageList()">
+          </div>
+        </div>
+
+        <!-- Triage Queue Table / Cards -->
+        <div id="triage-queue-list" class="space-y-3">
+          <!-- Injected by JS -->
+        </div>
+
+      </div>
+
+      <!-- ADMIN TAB 3: ANALISIS SKPI FAKULTAS -->
+      <div id="apanel-analytics" class="hidden space-y-6">
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full font-mono">
+                MONITORING KEPATUHAN & RESILIENSI
+              </span>
+              <h2 class="text-xl font-bold text-slate-900 mt-1">
+                Kepatuhan Literasi Ketahanan Epistemik Sivitas Akademika per Fakultas
+              </h2>
+              <p class="text-xs text-slate-600">
+                Data real-time mahasiswa yang telah menyelesaikan modul inokulasi kognitif dan berhak atas nilai ekuivalen SKPI.
+              </p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-slate-400 font-mono block">Rata-rata Universitas</span>
+              <span class="text-2xl font-black font-mono text-emerald-700">91.4%</span>
+            </div>
+          </div>
+
+          <!-- Faculty Bar Chart List -->
+          <div id="faculty-stats-list" class="space-y-3 pt-2">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= INSTITUTIONAL FOOTER ================= -->
+  <footer class="border-t border-slate-200 bg-white py-6 px-4 sm:px-6 text-xs text-slate-500 mt-auto">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded-lg bg-slate-900 text-emerald-400 flex items-center justify-center font-bold text-xs">
+          E
+        </div>
+        <div>
+          <p class="font-semibold text-slate-800">
+            EPISTEMIC-SHIELD • UIN Raden Fatah Palembang
+          </p>
+          <p class="text-[11px] text-slate-400">
+            Arsitektur Pertahanan Epistemik & Verifikasi Multimodal Kampus
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-4 text-[11px]">
+        <span class="flex items-center gap-1 text-slate-600 font-medium">
+          <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          UU PDP No. 27/2022 Compliant
+        </span>
+        <span class="text-slate-300">|</span>
+        <span>Permendikbudristek No. 30/2021 (Satgas PPKS)</span>
+        <span class="text-slate-300">|</span>
+        <span class="font-mono text-slate-700">Built with precision for Fatih Digital Studio</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!--                      MODALS SECTION                      -->
+  <!-- ======================================================== -->
+
+  <!-- 1. SOS DISTRESS INTAKE MODAL -->
+  <div id="modal-distress" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full border border-slate-200 overflow-hidden my-6">
+      <div class="bg-slate-950 text-white p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 border border-rose-500/30 flex items-center justify-center font-bold text-sm">
+            <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm">Sovereign Identity Distress Vault (SOS Darurat)</h3>
+            <p class="text-[11px] text-slate-400">Pusat Tanggap Insiden Non-Consensual Deepfake & Pemerasan Siber</p>
+          </div>
+        </div>
+        <button onclick="closeDistressModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+      </div>
+
+      <!-- Legal PDP Banner -->
+      <div class="bg-emerald-950 text-emerald-200 p-3.5 px-5 text-xs flex items-start gap-2.5 border-b border-emerald-800/40">
+        <svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <div class="leading-relaxed">
+          <strong class="font-semibold text-white">Jaminan Perlindungan Data Pribadi (UU PDP No. 27/2022):</strong>
+          <p class="text-[11px] text-emerald-300">
+            Sistem menerapkan protokol <em>Zero Raw Storage</em>. Berkas bukti tidak disimpan di server terbuka melainkan hanya dienkripsi satu arah (cryptographic hash) sebagai instrumen hukum bantahan.
+          </p>
+        </div>
+      </div>
+
+      <!-- Form View -->
+      <div id="distress-form-view" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Kategori Pelanggaran Siber</label>
+          <select id="sos-category" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-rose-500 font-medium">
+            <option value="NCII">Non-Consensual Intimate Imagery / Deepfake Clothing-Swap (AI Porno Palsu)</option>
+            <option value="VOICE_EXTORTION">Voice Cloning & Pemerasan Finansial Kerabat / Teman</option>
+            <option value="DEFAMATION">Pencemaran Nama Baik Menggunakan Video Tiruan</option>
+            <option value="IDENTITY_THEFT">Pencurian Identitas Digital & Pemalsuan Dokumen Kampus</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Inisial Nama Korban / Pelapor</label>
+            <input id="sos-initials" type="text" value="A.N" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono font-bold focus:outline-none focus:border-rose-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Fakultas</label>
+            <select id="sos-faculty" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-rose-500">
+              <option value="Fakultas Ilmu Tarbiyah dan Keguruan">Fakultas Ilmu Tarbiyah dan Keguruan</option>
+              <option value="Fakultas Sains dan Teknologi">Fakultas Sains dan Teknologi</option>
+              <option value="Fakultas Syariah dan Hukum">Fakultas Syariah dan Hukum</option>
+              <option value="Fakultas Ekonomi dan Bisnis Islam">Fakultas Ekonomi dan Bisnis Islam</option>
+              <option value="Fakultas Psikologi">Fakultas Psikologi</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Judul Insiden</label>
+          <input id="sos-title" type="text" value="Manipulasi foto KKN mahasiswi dengan AI cloth-swap di Telegram anonim" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-rose-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Kronologi Ringkas / Deskripsi Pemerasan</label>
+          <textarea id="sos-description" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-rose-500">Foto profil Instagram KKN diedit tanpa busana menggunakan AI inpainting lalu disebarkan ke bot Telegram anonim untuk memeras uang tebusan.</textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeDistressModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900">
+            Batal
+          </button>
+          <button type="button" onclick="submitDistressSOS()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span>Kirim Aduan & Terbitkan Surat Bantahan</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Success / Certificate Rebuttal View -->
+      <div id="distress-success-view" class="hidden p-6 space-y-4">
+        <div class="p-4 bg-emerald-50 border border-emerald-300 rounded-2xl flex items-start gap-3">
+          <svg class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div>
+            <h4 class="text-xs font-bold text-emerald-950">Aduan Berhasil Diproses & Terenkripsi!</h4>
+            <p class="text-[11px] text-emerald-800 mt-0.5">
+              Surat Keterangan Bantahan Forensik Digital telah diterbitkan untuk perlindungan hukum korban di bawah Satgas PPKS UIN Raden Fatah.
+            </p>
+          </div>
+        </div>
+
+        <!-- Certificate Box -->
+        <div class="bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 space-y-3 font-mono text-xs">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="text-emerald-400 font-bold">REBUTTAL CERTIFICATE</span>
+            <span id="rebuttal-cert-no" class="text-[10px] text-slate-400">CERT-REBUTTAL/PPKS-UINRF/2026/089</span>
+          </div>
+          <div class="text-[11px] space-y-1 text-slate-300">
+            <p>Subjek Korban: <strong id="rebuttal-victim-name" class="text-white">A.N</strong></p>
+            <p>Fakultas: <strong id="rebuttal-victim-faculty" class="text-white">Fakultas Ilmu Tarbiyah dan Keguruan</strong></p>
+            <p>Hash Integritas Bukti: <code class="text-emerald-300 text-[10px]">sha256:7f9ba912e8a349c28d71...</code></p>
+            <p class="text-emerald-400 font-semibold pt-1">
+              "Secara hukum materi yang beredar dinyatakan 100% SINTETIK NON-KONSENSUAL. Korban berada dalam perlindungan penuh Satgas PPKS UIN Raden Fatah."
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button onclick="window.print()" class="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold">
+            Cetak Surat Bantahan
+          </button>
+          <button onclick="closeDistressModal()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. FORENSIC DOSSIER INSPECTION MODAL (COMMAND CENTER) -->
+  <div id="modal-dossier" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full border border-slate-200 overflow-hidden my-6">
+      <!-- Header -->
+      <div class="bg-slate-900 text-white p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="dossier-case-code" class="font-mono text-xs text-indigo-300 font-bold">CAS-2026-0920-01</span>
+              <span id="dossier-case-severity" class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-900 text-rose-300 border border-rose-700">CRITICAL</span>
+            </div>
+            <h3 class="font-bold text-sm text-white">Dossier Verifikasi Forensik Lateral (Gemini 1.5 Pro)</h3>
+          </div>
+        </div>
+        <button onclick="closeDossierModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+      </div>
+
+      <!-- Dossier Content -->
+      <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+        <div>
+          <h4 id="dossier-title" class="text-base font-extrabold text-slate-900 mb-1">
+            Deepfake Video Rektor: Penawaran Beasiswa KIP-Kuliah Tunai Rp15 Juta Berbayar Admin
+          </h4>
+          <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+            <span>Platform Asal: <strong id="dossier-platform">WhatsApp Grup</strong></span>
+            <span>•</span>
+            <span>Kecepatan Sebar: <strong id="dossier-velocity">Viral Tinggi (12k view/jam)</strong></span>
+            <span>•</span>
+            <span>Probabilitas Sintetis: <strong id="dossier-confidence" class="text-rose-600 font-mono">94.8%</strong></span>
+          </div>
+        </div>
+
+        <!-- AI Executive Summary -->
+        <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100 space-y-2 text-xs text-slate-700">
+          <strong class="font-bold text-indigo-950 flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Ringkasan Forensik Eksekutif (Gemini 1.5 Pro):
+          </strong>
+          <p id="dossier-summary" class="leading-relaxed"></p>
+        </div>
+
+        <!-- Tripartite Forensic Breakdown -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1">
+            <span class="text-[10px] font-bold text-slate-400 uppercase font-mono block">1. Reverse Video Search</span>
+            <p id="dossier-reverse-search" class="text-slate-700"></p>
+          </div>
+          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1">
+            <span class="text-[10px] font-bold text-slate-400 uppercase font-mono block">2. Spektrogram Akustik</span>
+            <p id="dossier-acoustic-notes" class="text-slate-700"></p>
+          </div>
+          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1">
+            <span class="text-[10px] font-bold text-slate-400 uppercase font-mono block">3. Facial Mesh Consistency</span>
+            <p id="dossier-mesh-notes" class="text-slate-700"></p>
+          </div>
+        </div>
+
+        <!-- Triple-Signature Multi-Role Validation Box -->
+        <div class="bg-slate-900 text-white p-5 rounded-2xl border border-slate-800 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div>
+              <h4 class="font-bold text-xs text-white">Validasi Tanda Tangan Tripartit (Multi-Role Authority)</h4>
+              <p class="text-[11px] text-slate-400">Diperlukan 3 otoritas sebelum rilis pernyataan pers resmi.</p>
+            </div>
+            <span id="dossier-signature-count" class="text-xs font-mono font-bold text-emerald-400">2 / 3 Otoritas Menandatangani</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <!-- Role 1: Forensic Analyst -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+              <span class="text-[10px] text-slate-400 font-mono block">1. Analis Forensik FST</span>
+              <p class="text-xs font-bold text-white">Ir. Ahmad Zarkasi, M.Kom</p>
+              <div id="sig-status-forensic" class="text-[10px] font-mono text-emerald-400 flex items-center gap-1 font-bold">
+                ✓ Signed (07:42 WIB)
+              </div>
+            </div>
+
+            <!-- Role 2: Fact Checker -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+              <span class="text-[10px] text-slate-400 font-mono block">2. Satgas Siber Humas</span>
+              <p class="text-xs font-bold text-white">Siti Nurhaliza, S.Sos</p>
+              <div id="sig-status-factchecker" class="text-[10px] font-mono text-emerald-400 flex items-center gap-1 font-bold">
+                ✓ Signed (07:55 WIB)
+              </div>
+            </div>
+
+            <!-- Role 3: Cyberpsychologist -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+              <span class="text-[10px] text-slate-400 font-mono block">3. Cyberpsychologist</span>
+              <p class="text-xs font-bold text-white">Dr. Hj. Zuhdiyah, M.Ag</p>
+              <div id="sig-action-psychologist">
+                <button onclick="signPsychologistAction()" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-colors">
+                  Tandatangani Validasi
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Row -->
+        <div class="flex items-center justify-between pt-3 border-t border-slate-200">
+          <button onclick="closeDossierModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900">
+            Tutup
+          </button>
+          <button id="btn-open-clarification-from-dossier" onclick="openClarificationModal()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all">
+            <span>Buka Pusat Klarifikasi Pers</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. OFFICIAL CLARIFICATION DISPATCHER MODAL -->
+  <div id="modal-clarification" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full border border-slate-200 overflow-hidden my-6">
+      <div class="bg-slate-900 text-white p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm">Pusat Penerbitan Klarifikasi Resmi (*Official Debunk Dispatcher*)</h3>
+            <p class="text-[11px] text-slate-400">Penerbitan Siaran Pers & Notifikasi Massal Sivitas Akademika</p>
+          </div>
+        </div>
+        <button onclick="closeClarificationModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div>
+          <span class="text-xs text-slate-500 font-mono block">Nomor Surat Keputusan / Edaran:</span>
+          <span id="clarify-letter-no" class="font-mono text-xs font-bold text-slate-900">B-1422/Un.09/R/HM.01/09/2026</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Headline Siaran Pers Resmi</label>
+          <input id="clarify-headline-input" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-slate-800" value="KLARIFIKASI RESMI REKTORAT: HOAKS VIDEO PENAWARAN BEASISWA TUNAI MENGATASNAMAKAN REKTOR">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Pernyataan Sikap Institusi (Press Statement)</label>
+          <textarea id="clarify-statement-input" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-slate-800 leading-relaxed">Rektorat UIN Raden Fatah Palembang menegaskan bahwa video yang beredar di WhatsApp mengenai beasiswa tunai Rp15 juta bersyarat biaya admin adalah 100% REKAYASA DIGITAL SINTETIS (DEEPFAKE). Universitas tidak pernah memungut biaya apa pun dalam penyaluran beasiswa resmi.</textarea>
+        </div>
+
+        <!-- Channels Selection -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-2">Saluran Diseminasi Massal (One-Click Broadcast)</label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+              <input type="checkbox" checked class="rounded text-emerald-600">
+              <span class="font-medium text-slate-800">Portal SIAKAD</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+              <input type="checkbox" checked class="rounded text-emerald-600">
+              <span class="font-medium text-slate-800">Push PWA Kampus</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+              <input type="checkbox" checked class="rounded text-emerald-600">
+              <span class="font-medium text-slate-800">Instagram Resmi</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+              <input type="checkbox" checked class="rounded text-emerald-600">
+              <span class="font-medium text-slate-800">Grup Komti 84</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-slate-200">
+          <button onclick="window.print()" class="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-semibold">
+            Cetak Siaran Pers (PDF)
+          </button>
+          <button onclick="dispatchDebunkNow()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            <span>Transmisikan Siaran Pers Resmi Sekarang</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. GEMINI API KEY MODAL -->
+  <div id="modal-apikey" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden my-6">
+      <div class="bg-slate-900 text-white p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs">
+            AI
+          </div>
+          <div>
+            <h3 class="font-bold text-sm">Konfigurasi Google Gemini API</h3>
+            <p class="text-[11px] text-slate-400">Kunci API untuk Tutor Sokratik & Pemindai Live</p>
+          </div>
+        </div>
+        <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs">
+        <p class="text-slate-600 leading-relaxed">
+          Masukkan Google Gemini API Key Anda untuk mengaktifkan pemanggilan live model <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-slate-800">gemini-1.5-flash</code>. Kunci ini disimpan secara aman hanya di <code class="font-mono">localStorage</code> browser Anda.
+        </p>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Gemini API Key</label>
+          <input id="apikey-input" type="password" placeholder="AIzaSy..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-mono focus:outline-none focus:border-slate-800">
+        </div>
+
+        <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-emerald-800 text-[11px] leading-relaxed">
+          💡 <strong>Mode Simulasi Cerdas:</strong> Jika Anda tidak memiliki API Key, sistem tetap berfungsi penuh 100% menggunakan <em>Smart Socratic Engine</em> bawaan tanpa error!
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button onclick="closeApiKeyModal()" class="px-3.5 py-2 text-slate-600 hover:text-slate-900 font-semibold">
+            Batal
+          </button>
+          <button onclick="saveApiKey()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shadow-sm">
+            Simpan Kunci API
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS CONTAINER -->
+  <div id="toast-wrap" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ======================================================== -->
+  <!--                      LOGIKA JAVASCRIPT                   -->
+  <!-- ======================================================== -->
+  <script>
+    // --- STATE MANAGEMENT ---
+    const S = {
+      mode: 'student', // 'student' | 'admin'
+      studentTab: 'prebunking', // 'prebunking' | 'scanner' | 'badge'
+      adminTab: 'radar', // 'radar' | 'triage' | 'analytics'
+      isPhoneMockup: false,
+      apiKey: localStorage.getItem('gemini_api_key') || '',
+      currentScenarioIdx: 0,
+      completedScenarios: [],
+      score: 96,
+      audioPlaying: false,
+      audioTime: 0,
+      activeScanResult: null,
+      selectedIncident: null,
+      triageSeverityFilter: 'ALL',
+      radarPlatformFilter: 'all',
+      slaSeconds: 1122, // countdown timer
+
+      badgeData: {
+        id: 'SKPI-UINRF-2026-08492',
+        studentName: 'Mgs. Muhammad Fatih Abdurrahman',
+        studentNim: '2320801042',
+        faculty: 'Fakultas Sains dan Teknologi',
+        studyProgram: 'Sistem Informasi (Kampus B Jakabaring)',
+        completionDate: '20 September 2026',
+        verificationHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+        skpiWeight: '1.5 SKS Ekuivalen Literasi Digital & Etika AI',
+        status: 'RESMI_TERDAFTAR',
+        score: 96,
+      },
+
+      scenarios: [
+        {
+          id: 'sc-1-voice-cloning',
+          title: 'Modul 1: Deteksi Kloning Suara AI (Vocal Synthesis)',
+          subtitle: 'Analisis Spektrogram & Ritme Fisiologis Paru-paru',
+          category: 'FORENSIK AKUSTIK',
+          badgeTitle: 'Forensik Akustik',
+          narrative: 'Anda menerima pesan suara darurat di WhatsApp yang terdengar persis seperti Dekan Fakultas Anda. Suara tersebut meminta Anda segera mengirimkan uang pendaftaran seminar internasional ke nomor rekening pribadi dalam waktu 30 menit.',
+          clues: [
+            { title: 'Ketiadaan Jeda Respirasi', desc: 'Vokal AI sering melafalkan kalimat panjang tanpa desah napas natural di antara klausa.' },
+            { title: 'Pemotongan Harmonik 8kHz+', desc: 'Spektrogram menunjukkan suara datar pada frekuensi tinggi akibat kompresi model vocoder TTS.' },
+            { title: 'Aksen Fonem Monoton', desc: 'Dialek fonem lokal terdengar terlalu datar tanpa fluktuasi emosional spontan.' }
+          ],
+          question: 'Dengarkan sampel vokal tiruan di atas. Indikator fisiologis utama apa yang membuktikan bahwa audio tersebut adalah kloningan AI dan bukan suara manusia asli?',
+          options: [
+            {
+              id: 'opt-1-1',
+              text: 'Volume suara terlalu kencang dan speaker smartphone terasa bergetar hebat.',
+              isCorrect: false,
+              explanation: 'Volume tinggi hanyalah pengaturan level audio amplifikasi, bukan anomali biologis sintesis vokal.'
+            },
+            {
+              id: 'opt-1-2',
+              text: 'Ketiadaan jeda mikro-respirasi (tarikan napas) serta transisi fonem yang terlalu mulus tanpa variasi jeda pita suara.',
+              isCorrect: true,
+              explanation: 'Tepat sekali! Model kloning vokal modern (seperti ElevenLabs/VALL-E) sering mengabaikan fisika respirasi paru-paru—tidak ada mikro-jeda tarikan napas (inhalation pauses).'
+            },
+            {
+              id: 'opt-1-3',
+              text: 'Format file adalah MP3 dan bukan rekaman FLAC beresolusi tinggi.',
+              isCorrect: false,
+              explanation: 'Format berkas hanyalah kontainer data, bukan bukti bahwa sumber suara asli manusia atau sintetis.'
+            }
+          ]
+        },
+        {
+          id: 'sc-2-facial-warping',
+          title: 'Modul 2: Inkonsistensi Visual & Batas Wajah (Warping)',
+          subtitle: 'Inspeksi Pantulan Kornea Mata, Batas Rahang, dan Gigi',
+          category: 'INSPEKSI SPASIAL',
+          badgeTitle: 'Inspeksi Spasial',
+          narrative: 'Beredar video viral di TikTok yang menampilkan Rektor UIN Raden Fatah mengumumkan bahwa wisuda periode November dibatalkan dan diganti biaya denda.',
+          clues: [
+            { title: 'Asimetri Pantulan Kornea', desc: 'Mata kiri dan kanan memantulkan sumber cahaya lingkungan dari sudut yang saling bertentangan.' },
+            { title: 'Kabur pada Batas Rahang', desc: 'Tepi dagu dan leher mengalami distorsi temporal blur saat kepala menoleh ke samping.' },
+            { title: 'Tekstur Gigi Monolitik', desc: 'Gigi tampak seperti balok putih bersatu tanpa celah interdental yang tajam.' }
+          ],
+          question: 'Perhatikan area wajah pada perbandingan frame video. Wilayah anatomis mana yang paling sering gagal dirender secara koheren oleh model Deepfake modern?',
+          options: [
+            {
+              id: 'opt-2-1',
+              text: 'Warna baju toga dan lencana pin universitas di dada.',
+              isCorrect: false,
+              explanation: 'Pakaian luar biasanya bukan target neural face-swapping sehingga tetap statis dari video asli.'
+            },
+            {
+              id: 'opt-2-2',
+              text: 'Pantulan specular pada kornea mata (arah datang cahaya) dan artefak blur pada perbatasan garis rahang saat bergerak.',
+              isCorrect: true,
+              explanation: 'Luar biasa! Model deepfake GAN/Diffusion frame-per-frame sering gagal mempertahankan fisika pencahayaan 3D (corneal reflections) serta batas masking rahang (boundary warping).'
+            },
+            {
+              id: 'opt-2-3',
+              text: 'Warna dinding latar belakang ruangan rapat rektorat.',
+              isCorrect: false,
+              explanation: 'Latar belakang sering kali merupakan rekaman asli yang tidak mengalami rekayasa komputasi.'
+            }
+          ]
+        },
+        {
+          id: 'sc-3-emotional-exploitation',
+          title: 'Modul 3: Dekonstruksi Manipulasi Emosional & Umpan Kognitif',
+          subtitle: 'Mengenali Bias Urgensi Palsu, Keserakahan, dan Otoritas Semu',
+          category: 'KETAHANAN KOGNITIF',
+          badgeTitle: 'Ketahanan Kognitif',
+          narrative: 'Sebuah video mengatasnamakan Lembaga Beasiswa Kampus disebarkan lewat grup angkatan: "Bantuan Dana Tunai Kemendikbudristek Rp15 Juta bagi Mahasiswa UIN! Kuota hanya 50 orang pertama, tersisa 12 menit lagi. Segera klik link verifikasi!"',
+          clues: [
+            { title: 'Artificial Urgency', desc: 'Menekan amygdala korban agar bertindak impulsif sebelum akal kritis sempat memverifikasi.' },
+            { title: 'Greed / Relief Bait', desc: 'Menawarkan nominal uang tunai besar yang tidak masuk akal untuk menyamarkan risiko penipuan.' },
+            { title: 'Authority Hijacking', desc: 'Membajak logo akreditasi Unggul dan stempel kampus untuk meminjam legitimasi.' }
+          ],
+          question: 'Secara psikologis, mengapa teknik manipulasi deepfake selalu menggabungkan video rekayasa dengan countdown waktu "tersisa 12 menit"?',
+          options: [
+            {
+              id: 'opt-3-1',
+              text: 'Supaya bandwidth server pembuat video tidak kelebihan beban (overload).',
+              isCorrect: false,
+              explanation: 'Ini adalah alasan teknis yang keliru. Penyerang menggunakan taktik rekayasa sosial (social engineering).'
+            },
+            {
+              id: 'opt-3-2',
+              text: 'Untuk memicu reaksi panik (System 1 Thinking) sehingga korban tidak sempat melakukan verifikasi lateral ke portal resmi kampus.',
+              isCorrect: true,
+              explanation: 'Sempurna! Daniel Kahneman (Thinking, Fast and Slow): Urgensi buatan memaksa otak beralih ke System 1 (cepat, emosional). Benteng pertahanan utama adalah selalu beri jeda "Stop, Breathe, Verify Lateral"!'
+            },
+            {
+              id: 'opt-3-3',
+              text: 'Karena peraturan kampus memang mewajibkan pendaftaran beasiswa dilakukan dalam hitungan menit.',
+              isCorrect: false,
+              explanation: 'SOP administrasi beasiswa universitas tidak pernah memiliki batas pendaftaran 12 menit lewat media sosial.'
+            }
+          ]
+        }
+      ],
+
+      presetScans: [
+        {
+          id: 'preset-1',
+          name: 'Voice_Memo_Rektor_Bansos_15Jt.mp3',
+          type: 'audio',
+          size: '1.4 MB',
+          score: 18,
+          verdict: 'synthetic',
+          verdictTitle: 'Indikasi Rekayasa Tinggi (Synthetic Anomaly)',
+          summary: 'Terdeteksi vokal hasil kloning AI (model TTS VALL-E/RVC). Mengandung anomali hilangnya jeda respirasi manusia dan pemotongan harmonik di atas 7.8 kHz.',
+          anomalies: [
+            { type: 'Acoustic Discontinuity', region: '00:04 - 00:12', severity: 'kritis', desc: 'Vokal berjalan 8.2 detik tanpa tarikan napas fisiologis paru-paru.', metric: 'Respiratory Periodicity: 0.04 (Normal: >0.65)' },
+            { type: 'Spectral Flatness Mismatch', region: 'Spektrum 8kHz+', severity: 'kritis', desc: 'Trunkasi tajam frekuensi tinggi khas model kompresi neural vocoder.', metric: 'Harmonic Distortion: 84.2%' }
+          ],
+          psychBait: { trigger: 'Urgensi Finansial & Otoritas Pimpinan', vuln: 'Kebutuhan Uang Kuliah Tunggal (UKT)', tactic: 'Meminta transfer verifikasi Rp500 ribu sebelum batas jam 12:00 siang.' },
+          c2pa: { hasManifest: false, valid: false, alert: 'Tidak ada metadata C2PA valid. Format audio telah di-encode ulang dengan FFmpeg.', hash: 'sha256:4d82b0e91c89f53098f9211a768f5c9082341b' }
+        },
+        {
+          id: 'preset-2',
+          name: 'Video_Pengumuman_KRS_Puskom.mp4',
+          type: 'video',
+          size: '8.7 MB',
+          score: 94,
+          verdict: 'verified',
+          verdictTitle: 'Terverifikasi Asli & Berintegritas',
+          summary: 'Video memenuhi kriteria keaslian kriptografis C2PA dan konsistensi multimodal. Sesuai dengan arsip Pusat Komputer UIN Raden Fatah.',
+          anomalies: [],
+          psychBait: { trigger: 'Informasi Akademik Rutin', vuln: 'Tidak Ada (Informatif Normal)', tactic: 'Tidak ada manipulasi kognitif.' },
+          c2pa: { hasManifest: true, valid: true, signer: 'Pusat Teknologi Informasi dan Pangkalan Data (PTIPD) UIN Raden Fatah', hardware: 'Sony FX3 Cinema Line (Firmware C2PA Signed)', hash: 'sha256:1a82f3c0991823abce3902341098ef73210984ba' }
+        },
+        {
+          id: 'preset-3',
+          name: 'Viral_Tiktok_Parodi_Dosen_Kartun.mp4',
+          type: 'video',
+          size: '3.2 MB',
+          score: 62,
+          verdict: 'ambiguous',
+          verdictTitle: 'Ambigu / Satir Kreatif',
+          summary: 'Audio terdeteksi hasil manipulasi pitch shift, namun visual asli. Konten tidak memiliki indikasi penipuan atau niat jahat (parodi kampus).',
+          anomalies: [
+            { type: 'Pitch Shift Audio Anomaly', region: '00:01 - 00:15', severity: 'waspada', desc: 'Pergeseran frekuensi formants vokal sebesar +6 semitones untuk efek komedi.', metric: 'Pitch Deviation: 78.4%' }
+          ],
+          psychBait: { trigger: 'Hiburan / Humor Kampus', vuln: 'Tidak Ada Kerugian Finansial', tactic: 'Parodi santai tanpa maksud membodohi publik.' },
+          c2pa: { hasManifest: false, valid: false, alert: 'Video hasil unduhan TikTok dengan watermark platform.', hash: 'sha256:8893cb34172f00a4b9c1d0198442bfa87643501a' }
+        }
+      ],
+
+      incidents: [
+        {
+          id: 'inc-001-rektor-scholarship',
+          code: 'CAS-2026-0920-01',
+          title: 'Deepfake Video Rektor: Penawaran Beasiswa KIP-Kuliah Tunai Rp15 Juta Berbayar Admin',
+          platform: 'WhatsApp Grup',
+          time: '20 Sep 2026, 07:15 WIB',
+          severity: 'CRITICAL',
+          status: 'IN_ANALYSIS',
+          velocity: 'Viral Tinggi (12k view/jam)',
+          confidence: 94.8,
+          entities: 'Prof. Dr. Nyayu Khodijah, Biro AAKK, Mahasiswa KIP',
+          targetFaculty: 'Semua Fakultas (84 Grup Angkatan)',
+          dossier: {
+            summary: 'Video menampilkan rekaman sambutan wisuda 2024 yang di-crop pada area bibir. Audio vokal disintesis menggunakan model RVC yang dilatih dari podcast humas kampus. Sinkronisasi bibir dengan fonem bilabial (B, P, M) mengalami delay 140ms. Pesan mengandung tautan phishing ke rekening bank swasta.',
+            reverseSearch: 'Potongan visual identik 100% dengan video dokumentasi Wisuda ke-89 UIN Raden Fatah di YouTube resmi menit 14:12.',
+            acousticNotes: 'Spektrum audio menunjukkan ketiadaan frekuensi di atas 7.5 kHz. Rasio Signal-to-Noise konstan artifisial, tidak cocok dengan akustik aula Gedung Academik Center.',
+            meshNotes: 'Optical flow tracking mendeteksi jitter 4.2 piksel di sekitar dagu dan kerudung saat subjek menoleh.',
+            signatures: {
+              forensic: { name: 'Ir. Ahmad Zarkasi, M.Kom', signed: true, time: '07:42 WIB' },
+              factchecker: { name: 'Siti Nurhaliza, S.Sos', signed: true, time: '07:55 WIB' },
+              psychologist: { name: 'Dr. Hj. Zuhdiyah, M.Ag', signed: false }
+            }
+          },
+          officialDebunk: {
+            letterNumber: 'B-1422/Un.09/R/HM.01/09/2026',
+            headline: 'KLARIFIKASI RESMI REKTORAT: HOAKS VIDEO PENAWARAN BEASISWA TUNAI MENGATASNAMAKAN REKTOR',
+            statement: 'Rektorat UIN Raden Fatah Palembang menegaskan bahwa video yang beredar di WhatsApp mengenai beasiswa tunai Rp15 juta bersyarat biaya admin adalah 100% REKAYASA DIGITAL SINTETIS (DEEPFAKE). Universitas tidak pernah memungut biaya apa pun dalam penyaluran beasiswa resmi.'
+          }
+        },
+        {
+          id: 'inc-002-ncii-distress',
+          code: 'CAS-2026-0919-04',
+          title: 'Aduan Anonim SOS: Manipulasi Foto KKN Mahasiswi dengan AI Clothing Inpainting (NCII)',
+          platform: 'Telegram',
+          time: '19 Sep 2026, 22:40 WIB',
+          severity: 'CRITICAL',
+          status: 'CLARIFICATION_DISPATCHED',
+          velocity: 'Terisolasi (Pemerasan Personal)',
+          confidence: 99.2,
+          entities: 'Mahasiswi Inisial A.N, Kelompok KKN 104',
+          targetFaculty: 'Fakultas Ilmu Tarbiyah dan Keguruan',
+          dossier: {
+            summary: 'Foto asli diambil dari dokumentasi Instagram KKN resmi kampus. Analisis Error Level Analysis (ELA) menunjukkan deviasi kompresi 87% pada area torso subjek. Modus pemerasan via chat bot anonim.',
+            reverseSearch: 'Foto asli ditemukan di repositori LP2M UIN Raden Fatah tertanggal 12 Agustus 2026.',
+            acousticNotes: 'N/A (Media Visual Diam)',
+            meshNotes: 'Pencahayaan pada wajah subjek (ambient outdoor sore) tidak sinkron dengan bayangan artifisial pada torso hasil inpainting.',
+            signatures: {
+              forensic: { name: 'Ir. Ahmad Zarkasi, M.Kom', signed: true, time: '23:10 WIB' },
+              factchecker: { name: 'Satgas PPKS UIN Raden Fatah', signed: true, time: '23:25 WIB' },
+              psychologist: { name: 'Dra. Romlah, M.Si., Psikolog', signed: true, time: '23:45 WIB' }
+            }
+          },
+          officialDebunk: {
+            letterNumber: 'CERT-REBUTTAL/PPKS-UINRF/2026/089',
+            headline: 'SURAT KETERANGAN BANTAHAN FORENSIK DIGITAL (KASUS NON-CONSENSUAL SYNTHETIC MEDIA)',
+            statement: 'Satgas PPKS & Forensik Siber UIN Raden Fatah secara hukum menyatakan materi yang menargetkan Saudari A.N adalah rekayasa komputasi tanpa izin. Korban dilindungi penuh berdasarkan UU TPKS No. 12/2022 dan UU PDP No. 27/2022.'
+          }
+        },
+        {
+          id: 'inc-003-satire-parody',
+          code: 'CAS-2026-0918-09',
+          title: 'Video Parodi Mahasiswa: Dubbing Suara Kartun pada Sidang Skripsi Dosen FST',
+          platform: 'TikTok',
+          time: '18 Sep 2026, 16:30 WIB',
+          severity: 'LOW',
+          status: 'ARCHIVED',
+          velocity: 'Sedang (800 share)',
+          confidence: 82.1,
+          entities: 'BEM FST, Dosen Pembimbing Skripsi',
+          targetFaculty: 'Fakultas Sains dan Teknologi',
+          dossier: {
+            summary: 'Konten secara eksplisit menyertakan label tagar #ParodiFST #PentasSeni2026. Tidak ditemukan indikasi niat jahat (malicious intent) ataupun penipuan finansial. Termasuk kategori ekspresi kreatif beretiket keterbukaan sintesis.',
+            reverseSearch: 'Video dibuat atas persetujuan dosen bersangkutan untuk teaser Dies Natalis.',
+            acousticNotes: 'Efek pitch shift kartun tampak jelas tanpa upaya penyamaran identitas.',
+            meshNotes: 'Tidak ada modifikasi mesh wajah (hanya audio dubbing humor).',
+            signatures: {
+              forensic: { name: 'Ir. Ahmad Zarkasi, M.Kom', signed: true, time: '17:00 WIB' },
+              factchecker: { name: 'Siti Nurhaliza, S.Sos', signed: true, time: '17:15 WIB' },
+              psychologist: { name: 'Dr. Hj. Zuhdiyah, M.Ag', signed: true, time: '17:30 WIB' }
+            }
+          },
+          officialDebunk: {
+            letterNumber: 'NOTA-DISCLOSURE/FST-022/2026',
+            headline: 'STATUS AMAN: KONTEN KREATIF BERLABEL SINTESIS (PARODI)',
+            statement: 'Konten diputuskan memenuhi asas transparansi AI dan tidak melanggar Kode Etik Sivitas Akademika.'
+          }
+        }
+      ],
+
+      faculties: [
+        { name: 'Fakultas Sains dan Teknologi (FST)', total: 2850, done: 2710, rate: 95.1 },
+        { name: 'Fakultas Psikologi (FPsi)', total: 1480, done: 1350, rate: 91.2 },
+        { name: 'Fakultas Ilmu Tarbiyah dan Keguruan (FITK)', total: 4920, done: 4480, rate: 91.0 },
+        { name: 'Fakultas Ekonomi dan Bisnis Islam (FEBI)', total: 3400, done: 3020, rate: 88.8 },
+        { name: 'Fakultas Dakwah dan Komunikasi (FDK)', total: 2150, done: 1910, rate: 88.8 },
+        { name: 'Fakultas Syariah dan Hukum (FSH)', total: 2600, done: 2290, rate: 88.0 },
+        { name: 'Fakultas Ilmu Sosial dan Ilmu Politik (FISIP)', total: 1720, done: 1490, rate: 86.6 },
+        { name: 'Fakultas Ushuluddin dan Pemikiran Islam (FUHUM)', total: 1650, done: 1420, rate: 86.0 }
+      ]
+    };
+
+    // --- SOUND SYNTHESIZER ---
+    function playBeep(freq = 440, duration = 0.15) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    // --- TOAST NOTIFICATIONS ---
+    function toast(msg, type = 'info') {
+      const wrap = document.getElementById('toast-wrap');
+      const el = document.createElement('div');
+      const colors = {
+        success: 'bg-emerald-900/90 text-emerald-100 border-emerald-700',
+        error: 'bg-rose-900/90 text-rose-100 border-rose-700',
+        warning: 'bg-amber-900/90 text-amber-100 border-amber-700',
+        info: 'bg-slate-900/90 text-slate-100 border-slate-700'
+      };
+      const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+      el.className = `pointer-events-auto flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold shadow-lg backdrop-blur-md transition-all ${colors[type] || colors.info}`;
+      el.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${msg}</span>`;
+      wrap.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(8px)';
+        setTimeout(() => el.remove(), 300);
+      }, 3500);
+    }
+
+    // --- MODE SWITCHER (Student vs Admin) ---
+    function switchMode(m) {
+      S.mode = m;
+      const vStudent = document.getElementById('view-student');
+      const vAdmin = document.getElementById('view-admin');
+      const btnStd = document.getElementById('btn-mode-student');
+      const btnAdm = document.getElementById('btn-mode-admin');
+      const togglePhone = document.getElementById('btn-toggle-phone');
+
+      if (m === 'student') {
+        vStudent.classList.remove('hidden');
+        vAdmin.classList.add('hidden');
+        btnStd.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-slate-900 shadow-sm border border-slate-200/80';
+        btnAdm.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900';
+        togglePhone.classList.remove('hidden');
+      } else {
+        vStudent.classList.add('hidden');
+        vAdmin.classList.remove('hidden');
+        btnAdm.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-900 text-white shadow-sm border border-slate-800';
+        btnStd.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900';
+        togglePhone.classList.add('hidden');
+      }
+      playBeep(520, 0.08);
+    }
+
+    // --- PHONE MOCKUP TOGGLE ---
+    function togglePhoneFrame() {
+      S.isPhoneMockup = !S.isPhoneMockup;
+      const vStudent = document.getElementById('view-student');
+      const label = document.getElementById('phone-toggle-text');
+      if (S.isPhoneMockup) {
+        vStudent.className = 'w-full max-w-sm mx-auto bg-slate-50 rounded-[40px] border-[10px] border-slate-900 shadow-2xl p-4 overflow-y-auto space-y-6';
+        label.textContent = 'Layar Penuh';
+        toast('Tampilan smartphone (PWA mockup) diaktifkan', 'info');
+      } else {
+        vStudent.className = 'max-w-4xl mx-auto px-4 sm:px-6 space-y-6';
+        label.textContent = 'Mockup HP';
+        toast('Tampilan layar penuh diaktifkan', 'info');
+      }
+    }
+
+    // --- STUDENT SUB-TABS ---
+    function switchStudentTab(tab) {
+      S.studentTab = tab;
+      const tabs = ['prebunking', 'scanner', 'badge'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('stab-' + t);
+        const panel = document.getElementById('panel-' + t);
+        if (t === tab) {
+          panel.classList.remove('hidden');
+          btn.className = 'flex-1 min-w-[140px] py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-white text-slate-900 shadow-sm border border-slate-200/80';
+          btn.querySelector('svg').classList.add('text-emerald-600');
+          btn.querySelector('svg').classList.remove('text-slate-400');
+        } else {
+          panel.classList.add('hidden');
+          btn.className = 'flex-1 min-w-[140px] py-2.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900';
+          btn.querySelector('svg').classList.remove('text-emerald-600');
+          btn.querySelector('svg').classList.add('text-slate-400');
+        }
+      });
+      playBeep(480, 0.08);
+    }
+
+    // --- ADMIN SUB-TABS ---
+    function switchAdminTab(tab) {
+      S.adminTab = tab;
+      const tabs = ['radar', 'triage', 'analytics'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('atab-' + t);
+        const panel = document.getElementById('apanel-' + t);
+        if (t === tab) {
+          panel.classList.remove('hidden');
+          btn.className = 'flex-1 min-w-[170px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-slate-900 text-white shadow-sm';
+          btn.querySelector('svg').classList.add('text-emerald-400');
+          btn.querySelector('svg').classList.remove('text-slate-400');
+        } else {
+          panel.classList.add('hidden');
+          btn.className = 'flex-1 min-w-[170px] py-2.5 px-4 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900';
+          btn.querySelector('svg').classList.remove('text-emerald-400');
+          btn.querySelector('svg').classList.add('text-slate-400');
+        }
+      });
+      playBeep(460, 0.08);
+    }
+
+    // --- PREBUNKING FLOW RENDERING ---
+    function renderCurrentScenario() {
+      const sc = S.scenarios[S.currentScenarioIdx];
+      document.getElementById('scenario-category-badge').textContent = `MODUL ${S.currentScenarioIdx + 1} DARI 3 • ${sc.category}`;
+      document.getElementById('scenario-title').textContent = sc.title;
+      document.getElementById('scenario-subtitle').textContent = sc.subtitle;
+      document.getElementById('scenario-step-indicator').textContent = `${S.currentScenarioIdx + 1} / 3`;
+      document.getElementById('scenario-narrative').textContent = sc.narrative;
+      document.getElementById('challenge-question-text').textContent = sc.question;
+
+      // Media interactive toggle
+      const audioBox = document.getElementById('audio-visualizer-box');
+      const videoBox = document.getElementById('video-comparison-box');
+      const emoBox = document.getElementById('emotional-heuristic-box');
+
+      audioBox.classList.add('hidden');
+      videoBox.classList.add('hidden');
+      emoBox.classList.add('hidden');
+
+      if (S.currentScenarioIdx === 0) audioBox.classList.remove('hidden');
+      else if (S.currentScenarioIdx === 1) videoBox.classList.remove('hidden');
+      else emoBox.classList.remove('hidden');
+
+      // Clues
+      const cluesList = document.getElementById('forensic-clues-list');
+      cluesList.innerHTML = sc.clues.map(c => `
+        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+          <strong class="text-slate-900 block text-xs mb-0.5">• ${c.title}</strong>
+          <p class="text-[11px] text-slate-600 leading-snug">${c.desc}</p>
+        </div>
+      `).join('');
+
+      // Quiz options
+      const optList = document.getElementById('quiz-options-list');
+      optList.innerHTML = sc.options.map(opt => `
+        <button onclick="selectOption('${opt.id}')" id="btn-opt-${opt.id}" class="w-full text-left p-3 rounded-xl border border-slate-200 hover:border-slate-400 text-xs font-medium transition-all bg-white flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full border border-slate-300 text-slate-500 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+            ${opt.id.split('-')[2]}
+          </span>
+          <span class="text-slate-800 leading-relaxed">${opt.text}</span>
+        </button>
+      `).join('');
+
+      // Reset feedback box
+      const fbBox = document.getElementById('quiz-feedback-box');
+      fbBox.classList.add('hidden');
+      fbBox.innerHTML = '';
+    }
+
+    function selectOption(optId) {
+      const sc = S.scenarios[S.currentScenarioIdx];
+      const selected = sc.options.find(o => o.id === optId);
+      if (!selected) return;
+
+      const fbBox = document.getElementById('quiz-feedback-box');
+      fbBox.classList.remove('hidden');
+
+      sc.options.forEach(o => {
+        const btn = document.getElementById('btn-opt-' + o.id);
+        if (o.id === optId) {
+          if (o.isCorrect) {
+            btn.className = 'w-full text-left p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 text-xs font-semibold text-emerald-950 flex items-start gap-2.5';
+          } else {
+            btn.className = 'w-full text-left p-3 rounded-xl border-2 border-rose-500 bg-rose-50/50 text-xs font-semibold text-rose-950 flex items-start gap-2.5';
+          }
+        } else {
+          btn.className = 'w-full text-left p-3 rounded-xl border border-slate-200 text-xs text-slate-400 opacity-60 flex items-start gap-2.5';
+        }
+      });
+
+      if (selected.isCorrect) {
+        playBeep(640, 0.2);
+        if (typeof confetti === 'function') confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+        fbBox.className = 'p-4 rounded-xl text-xs space-y-1.5 border border-emerald-200 bg-emerald-50/70 text-emerald-900';
+        fbBox.innerHTML = `
+          <strong class="font-bold flex items-center gap-1.5 text-emerald-800">
+            ✓ Analisis Forensik Anda Tepat!
+          </strong>
+          <p>${selected.explanation}</p>
+        `;
+
+        if (!S.completedScenarios.includes(sc.id)) {
+          S.completedScenarios.push(sc.id);
+          document.getElementById('badge-scenarios-progress').textContent = `${S.completedScenarios.length}/3 Selesai`;
+          toast(`Modul ${S.currentScenarioIdx + 1} berhasil diselesaikan!`, 'success');
+        }
+      } else {
+        playBeep(280, 0.2);
+        fbBox.className = 'p-4 rounded-xl text-xs space-y-1.5 border border-rose-200 bg-rose-50/70 text-rose-900';
+        fbBox.innerHTML = `
+          <strong class="font-bold flex items-center gap-1.5 text-rose-800">
+            ✕ Belum Tepat. Pertimbangkan Aspek Fisiologis:
+          </strong>
+          <p>${selected.explanation}</p>
+        `;
+      }
+    }
+
+    function prevScenario() {
+      if (S.currentScenarioIdx > 0) {
+        S.currentScenarioIdx--;
+        renderCurrentScenario();
+      }
+    }
+
+    function nextScenario() {
+      if (S.currentScenarioIdx < S.scenarios.length - 1) {
+        S.currentScenarioIdx++;
+        renderCurrentScenario();
+      }
+    }
+
+    function handleNextStep() {
+      if (S.currentScenarioIdx < S.scenarios.length - 1) {
+        nextScenario();
+      } else {
+        switchStudentTab('scanner');
+        toast('Inokulasi selesai! Beralih ke Pemindai Cepat AI', 'success');
+      }
+    }
+
+    // --- AUDIO WAVEFORM SIMULATION ---
+    let animFrameId = null;
+    function initWaveform() {
+      const canvas = document.getElementById('waveform-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let phase = 0;
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const w = canvas.width;
+        const h = canvas.height;
+        const cy = h / 2;
+
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, cy);
+        ctx.lineTo(w, cy);
+        ctx.stroke();
+
+        const bars = 48;
+        const barW = w / bars - 2;
+
+        for (let i = 0; i < bars; i++) {
+          const x = i * (barW + 2);
+          const amp = S.audioPlaying
+            ? Math.sin(i * 0.3 + phase) * 20 + Math.cos(i * 0.15 + phase * 2) * 15 + 25
+            : Math.sin(i * 0.25) * 8 + 12;
+
+          const isDiscontinuity = (i >= 20 && i <= 28);
+          if (isDiscontinuity && S.audioPlaying) {
+            ctx.fillStyle = '#dc2626'; // Crimson red anomaly
+          } else {
+            ctx.fillStyle = S.audioPlaying ? '#10b981' : '#64748b';
+          }
+          ctx.fillRect(x, cy - amp / 2, barW, amp);
+        }
+
+        if (S.audioPlaying) phase += 0.1;
+        animFrameId = requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    let audioTimer = null;
+    function toggleAudioSimulation() {
+      S.audioPlaying = !S.audioPlaying;
+      const btnText = document.getElementById('audio-play-text');
+      const timeLabel = document.getElementById('audio-time-label');
+
+      if (S.audioPlaying) {
+        btnText.textContent = 'Jeda Rekaman';
+        playBeep(440, 0.1);
+        let sec = 0;
+        audioTimer = setInterval(() => {
+          sec++;
+          if (sec > 15) {
+            clearInterval(audioTimer);
+            S.audioPlaying = false;
+            btnText.textContent = 'Putar Rekaman Sampel';
+            timeLabel.textContent = '00:00 / 00:15';
+            return;
+          }
+          const sStr = sec < 10 ? '0' + sec : sec;
+          timeLabel.textContent = `00:${sStr} / 00:15`;
+          if (sec >= 4 && sec <= 8) playBeep(260 + sec * 20, 0.08); // Anomaly tone
+        }, 1000);
+      } else {
+        btnText.textContent = 'Putar Rekaman Sampel';
+        clearInterval(audioTimer);
+      }
+    }
+
+    // --- SOCRATIC TUTOR AI DIALOG ---
+    function toggleSocraticDrawer() {
+      const d = document.getElementById('socratic-drawer');
+      d.classList.toggle('hidden');
+      if (!d.classList.contains('hidden')) {
+        document.getElementById('tutor-input').focus();
+      }
+    }
+
+    function sendQuickPrompt(txt) {
+      document.getElementById('tutor-input').value = txt;
+      sendTutorMessage();
+    }
+
+    async function sendTutorMessage() {
+      const input = document.getElementById('tutor-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+
+      const chat = document.getElementById('tutor-chat-box');
+
+      // Append user bubble
+      const uEl = document.createElement('div');
+      uEl.className = 'flex items-start gap-2.5 justify-end';
+      uEl.innerHTML = `
+        <div class="bg-indigo-600 text-white p-3 rounded-xl rounded-tr-none leading-relaxed max-w-[85%]">
+          ${text}
+        </div>
+        <div class="w-6 h-6 rounded-lg bg-slate-800 text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">M</div>
+      `;
+      chat.appendChild(uEl);
+      chat.scrollTop = chat.scrollHeight;
+
+      // Loading bubble
+      const loadEl = document.createElement('div');
+      loadEl.className = 'flex items-start gap-2.5';
+      loadEl.innerHTML = `
+        <div class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">T</div>
+        <div class="bg-indigo-50/70 border border-indigo-100 p-3 rounded-xl rounded-tl-none text-slate-500 italic text-[11px]">
+          Tutor Sokratik sedang memproses refleksi epistemik...
+        </div>
+      `;
+      chat.appendChild(loadEl);
+      chat.scrollTop = chat.scrollHeight;
+
+      // Generate response (from Gemini API if key provided, else smart reasoning fallback)
+      let reply = '';
+      if (S.apiKey && S.apiKey.length > 10) {
+        try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${S.apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{
+                  text: `Anda adalah Tutor Sokratik Epistemik UIN Raden Fatah. Jawab pertanyaan mahasiswa secara reflektif, santun, dan ajukan pemantik balik kritis tentang forensik AI:\n"${text}"`
+                }]
+              }]
+            })
+          });
+          const data = await res.json();
+          reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        } catch (err) {
+          console.warn('API error, using local fallback:', err);
+        }
+      }
+
+      if (!reply) {
+        reply = getFallbackSocraticReply(text);
+      }
+
+      loadEl.remove();
+
+      const rEl = document.createElement('div');
+      rEl.className = 'flex items-start gap-2.5';
+      rEl.innerHTML = `
+        <div class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">T</div>
+        <div class="bg-indigo-50/70 border border-indigo-100 p-3 rounded-xl rounded-tl-none text-slate-800 leading-relaxed max-w-[85%]">
+          ${reply}
+        </div>
+      `;
+      chat.appendChild(rEl);
+      chat.scrollTop = chat.scrollHeight;
+      playBeep(520, 0.1);
+    }
+
+    function getFallbackSocraticReply(query) {
+      const q = query.toLowerCase();
+      if (q.includes('napas') || q.includes('respirasi') || q.includes('jeda')) {
+        return "Pengamatan yang sangat tajam! Anda menyinggung aspek krusial: fisiologi pernapasan manusia. Model kloning vokal (TTS) sering memproduksi deretan fonem secara matematis tanpa mensimulasikan ekspansi diafragma dada. Coba renungkan: jika seseorang berbicara dengan nada terburu-buru, bukankah secara biologis tarikan napasnya justru harus terdengar lebih sering dan dalam?";
+      }
+      if (q.includes('mata') || q.includes('pantulan') || q.includes('cahaya') || q.includes('kornea')) {
+        return "Analisis Anda menyentuh ranah fotometri optik yang sangat esensial. Perhatikan bagaimana kornea mata manusia bertindak layaknya cermin cembung mikro. Dalam lingkungan satu ruangan rapat, apakah mungkin mata kiri menangkap pantulan jendela matahari sementara mata kanan memantulkan lampu sorot dari sudut berlawanan?";
+      }
+      if (q.includes('uang') || q.includes('beasiswa') || q.includes('panik') || q.includes('urgensi') || q.includes('waktu')) {
+        return "Tepat sekali, Anda sedang membedah lapisan neuro-psikologisnya. Pelaku manipulasi epistemik sangat paham bahwa ketakutan tertinggal (FOMO) dan desakan finansial dapat menonaktifkan korteks prefrontal rasional kita. Pertanyaan reflektifnya: apabila ada pengumuman beasiswa resmi rektorat, saluran komunikasi formal apa yang seharusnya menjadi rujukan verifikasi pertama Anda sebelum menekan tombol transaksi?";
+      }
+      return "Sebuah refleksi awal yang sangat menarik. Dalam skenario ini, apa petunjuk sensorik (akustik, visual, atau bahasa) yang paling pertama kali menimbulkan ketidakwajaran di intuisi Anda? Cobalah amati apakah fenomena tersebut bersumber dari kelemahan model komputasi atau rekayasa emosional yang disengaja.";
+    }
+
+    // --- MULTIMODAL SCANNER PIPELINE ---
+    function triggerFileInput() {
+      document.getElementById('real-file-input').click();
+    }
+
+    function handleManualFileUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      runScanSimulation({
+        name: file.name,
+        size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
+        type: file.type.includes('audio') ? 'audio' : 'video',
+        score: 32,
+        verdict: 'synthetic',
+        verdictTitle: 'Anomali Kompresi & Ketiadaan Provenance',
+        summary: `File ${file.name} dianalisis. Tidak ditemukan manifest C2PA resmi penerbit kampus. Mengandung anomali deviasi frekuensi khas sintesis AI.`,
+        anomalies: [
+          { type: 'Missing C2PA Signature', region: 'Metadata', severity: 'kritis', desc: 'File tidak memiliki tanda tangan digital kamera atau lembaga resmi.', metric: 'C2PA Manifest: Null' }
+        ],
+        psychBait: { trigger: 'Konten Tidak Dikenal', vuln: 'Potensi Phishing', tactic: 'Waspadai instruksi transfer dana atau tautan eksternal.' },
+        c2pa: { hasManifest: false, valid: false, alert: 'Format tidak terdaftar dalam trust-list kampus.', hash: 'sha256:' + Math.random().toString(16).slice(2) }
+      });
+    }
+
+    function runSampleScan(idx) {
+      const sample = S.presetScans[idx];
+      runScanSimulation(sample);
+    }
+
+    function runScanSimulation(sample) {
+      const pBox = document.getElementById('scan-progress-box');
+      const rBox = document.getElementById('scan-result-box');
+      const stepText = document.getElementById('scan-step-text');
+      const logsBox = document.getElementById('scan-logs-box');
+
+      pBox.classList.remove('hidden');
+      rBox.classList.add('hidden');
+      logsBox.innerHTML = '';
+
+      const steps = [
+        'Membaca Manifest Kriptografi C2PA & Metadata EXIF...',
+        'Gemini 1.5 Flash Melakukan Ingesti Audio-Visual Multimodal...',
+        'Memeriksa Koherensi Spasio-Temporal & Harmoni Spektrogram Mel...',
+        'Menganalisis Pola Eksploitasi Psikologis & Umpan Disinformasi...'
+      ];
+
+      const logs = [
+        `[INIT] Mengunggah ${sample.name} (${sample.size})...`,
+        `[C2PA] Hash provenance: ${sample.c2pa.hasManifest ? 'Valid Signer: ' + sample.c2pa.signer : 'Tidak ada signature valid.'}`,
+        `[GEMINI-1.5] Cross-modal alignment diproses. Deteksi formants vokal dan facial tracking...`,
+        `[SPECTROGRAM] Menghitung respiratory periodicity & specular photometrics...`,
+        `[INTEGRITY] Selesai. Menghitung Epistemic Integrity Index: ${sample.score}/100.`
+      ];
+
+      let cur = 0;
+      playBeep(480, 0.1);
+
+      const interval = setInterval(() => {
+        if (cur < steps.length) {
+          stepText.textContent = steps[cur];
+          const l = document.createElement('div');
+          l.textContent = logs[cur];
+          logsBox.appendChild(l);
+          logsBox.scrollTop = logsBox.scrollHeight;
+          playBeep(520 + cur * 60, 0.08);
+          cur++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            pBox.classList.add('hidden');
+            displayScanResult(sample);
+          }, 400);
+        }
+      }, 550);
+    }
+
+    function displayScanResult(res) {
+      S.activeScanResult = res;
+      const rBox = document.getElementById('scan-result-box');
+      rBox.classList.remove('hidden');
+
+      // Banner colors
+      const banner = document.getElementById('scan-verdict-banner');
+      const icon = document.getElementById('scan-verdict-icon');
+      const tag = document.getElementById('scan-verdict-tag');
+      const title = document.getElementById('scan-verdict-title');
+      const score = document.getElementById('scan-integrity-score');
+
+      score.textContent = res.score;
+      title.textContent = res.verdictTitle;
+      document.getElementById('scan-timestamp-tag').textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+      document.getElementById('scan-summary-text').textContent = res.summary;
+
+      if (res.verdict === 'synthetic') {
+        banner.className = 'p-4 rounded-xl border border-rose-300 bg-rose-50/80 flex flex-wrap items-center justify-between gap-4';
+        icon.className = 'w-11 h-11 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold text-lg';
+        icon.textContent = '!';
+        tag.className = 'text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-rose-200 text-rose-900';
+        tag.textContent = 'SYNTHETIC';
+      } else if (res.verdict === 'ambiguous') {
+        banner.className = 'p-4 rounded-xl border border-amber-300 bg-amber-50/80 flex flex-wrap items-center justify-between gap-4';
+        icon.className = 'w-11 h-11 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg';
+        icon.textContent = '~';
+        tag.className = 'text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-amber-200 text-amber-900';
+        tag.textContent = 'AMBIGUOUS';
+      } else {
+        banner.className = 'p-4 rounded-xl border border-emerald-300 bg-emerald-50/80 flex flex-wrap items-center justify-between gap-4';
+        icon.className = 'w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg';
+        icon.textContent = '✓';
+        tag.className = 'text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-emerald-200 text-emerald-900';
+        tag.textContent = 'VERIFIED';
+        if (typeof confetti === 'function') confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
+      }
+
+      // C2PA Manifest
+      const c2paStatus = document.getElementById('scan-c2pa-status');
+      const c2paDetails = document.getElementById('scan-c2pa-details');
+      if (res.c2pa.hasManifest) {
+        c2paStatus.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800';
+        c2paStatus.textContent = 'C2PA Valid Signed';
+        c2paDetails.innerHTML = `
+          <p>Signer Org: <strong class="text-white">${res.c2pa.signer}</strong></p>
+          <p>Hardware Model: <strong class="text-white">${res.c2pa.hardware}</strong></p>
+          <p>Provenance Hash: <code class="text-emerald-300">${res.c2pa.hash}</code></p>
+        `;
+      } else {
+        c2paStatus.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800';
+        c2paStatus.textContent = 'Tanpa Manifest C2PA';
+        c2paDetails.innerHTML = `
+          <p class="text-rose-300">Peringatan: ${res.c2pa.alert}</p>
+          <p>Ingest Hash: <code class="text-slate-400">${res.c2pa.hash}</code></p>
+        `;
+      }
+
+      // Anomalies
+      const aList = document.getElementById('scan-anomalies-list');
+      if (res.anomalies.length > 0) {
+        aList.innerHTML = res.anomalies.map(a => `
+          <div class="bg-white p-2.5 rounded-lg border border-slate-200">
+            <div class="flex items-center justify-between">
+              <strong class="text-slate-900 text-xs">${a.type} (${a.region})</strong>
+              <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-rose-100 text-rose-800 uppercase">${a.severity}</span>
+            </div>
+            <p class="text-[11px] text-slate-600 mt-1">${a.desc}</p>
+            <code class="text-[10px] text-indigo-700 font-mono block mt-0.5">${a.metric}</code>
+          </div>
+        `).join('');
+      } else {
+        aList.innerHTML = `<p class="text-emerald-700 italic">Tidak ditemukan anomali manipulasi vokal maupun visual spasial.</p>`;
+      }
+
+      // Psych Bait
+      const pBait = document.getElementById('scan-psych-bait');
+      pBait.innerHTML = `
+        <p>Heuristic Trigger: <strong class="text-slate-900">${res.psychBait.trigger}</strong></p>
+        <p>Target Kerentanan: <strong class="text-slate-900">${res.psychBait.vuln}</strong></p>
+        <p>Taktik Penipuan: <span class="text-slate-700">${res.psychBait.tactic}</span></p>
+      `;
+    }
+
+    function shareResultWhatsApp() {
+      if (!S.activeScanResult) return;
+      const text = `*EPISTEMIC-SHIELD UIN RADEN FATAH PALEMBANG*\n\nHasil Pemindaian Keaslian Media:\nNama Berkas: ${S.activeScanResult.name}\nStatus: ${S.activeScanResult.verdictTitle}\nSkor Integritas: ${S.activeScanResult.score}/100\nRingkasan: ${S.activeScanResult.summary}\n\nPeriksa keaslian media kampus Anda di portal resmi EPISTEMIC-SHIELD.`;
+      const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+      toast('Teks peringatan disiapkan untuk WhatsApp', 'success');
+    }
+
+    function reportActiveScanToCommandCenter() {
+      if (!S.activeScanResult) return;
+      toast('Laporan anomali berhasil dieskalasi ke Antrean Triage Satgas Siber!', 'success');
+      playBeep(600, 0.15);
+      const btn = document.getElementById('btn-report-command');
+      btn.textContent = '✓ Terlaporkan ke Command Center';
+      btn.className = 'px-5 py-2.5 bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-2';
+    }
+
+    // --- SKPI BADGE / CERTIFICATE ACTIONS ---
+    function copyHashText(txt) {
+      navigator.clipboard.writeText(txt);
+      toast('Hash integritas kriptografis berhasil disalin ke clipboard!', 'success');
+      playBeep(680, 0.08);
+    }
+
+    function syncToSiakad() {
+      const btn = document.getElementById('btn-sync-siakad');
+      const text = document.getElementById('siakad-btn-text');
+      text.textContent = 'Menyinkronkan...';
+      playBeep(520, 0.1);
+
+      setTimeout(() => {
+        text.textContent = '✓ Tersinkron di SIAKAD (1.5 SKS)';
+        btn.className = 'px-4 py-2 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm';
+        if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 80, origin: { y: 0.6 } });
+        toast('Kompetensi inokulasi berhasil dicatat pada transkrip SKPI resmi mahasiswa!', 'success');
+      }, 700);
+    }
+
+    // --- SOS DISTRESS VAULT MODAL ---
+    function openDistressModal() {
+      document.getElementById('modal-distress').classList.remove('hidden');
+      document.getElementById('distress-form-view').classList.remove('hidden');
+      document.getElementById('distress-success-view').classList.add('hidden');
+      playBeep(400, 0.1);
+    }
+
+    function closeDistressModal() {
+      document.getElementById('modal-distress').classList.add('hidden');
+    }
+
+    function submitDistressSOS() {
+      const initials = document.getElementById('sos-initials').value;
+      const faculty = document.getElementById('sos-faculty').value;
+
+      document.getElementById('rebuttal-victim-name').textContent = initials;
+      document.getElementById('rebuttal-victim-faculty').textContent = faculty;
+
+      document.getElementById('distress-form-view').classList.add('hidden');
+      document.getElementById('distress-success-view').classList.remove('hidden');
+
+      if (typeof confetti === 'function') confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
+      toast('Aduan SOS berhasil diterima. Surat Keterangan Bantahan resmi terbit!', 'success');
+      playBeep(650, 0.15);
+    }
+
+    // --- ADMIN RADAR & INCIDENT RENDERING ---
+    function renderRadarIncidents() {
+      const box = document.getElementById('radar-incident-cards');
+      const filtered = S.incidents.filter(c => {
+        if (S.radarPlatformFilter === 'all') return true;
+        return c.platform === S.radarPlatformFilter;
+      });
+
+      box.innerHTML = filtered.map(item => `
+        <div class="p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all flex flex-wrap items-center justify-between gap-3">
+          <div class="space-y-1 max-w-xl">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold text-slate-800">${item.code}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded ${item.severity === 'CRITICAL' ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700'}">
+                ${item.severity}
+              </span>
+              <span class="text-[11px] text-slate-400 font-mono">${item.time}</span>
+            </div>
+            <h4 class="font-bold text-xs text-slate-900">${item.title}</h4>
+            <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+              <span>Platform: <strong>${item.platform}</strong></span>
+              <span>•</span>
+              <span>Sebaran: <strong>${item.velocity}</strong></span>
+              <span>•</span>
+              <span>Target: <strong>${item.targetFaculty}</strong></span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="inspectIncidentCase('${item.id}')" class="px-3.5 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-1 transition-colors">
+              Inspeksi Dossier
+            </button>
+            <button onclick="openClarificationForCase('${item.id}')" class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1 transition-colors">
+              Klarifikasi
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterRadarPlatform(p) {
+      S.radarPlatformFilter = p;
+      renderRadarIncidents();
+      playBeep(500, 0.08);
+    }
+
+    // --- ADMIN TRIAGE QUEUE RENDERING ---
+    function renderTriageList() {
+      const qBox = document.getElementById('triage-queue-list');
+      const search = (document.getElementById('triage-search-input')?.value || '').toLowerCase();
+
+      const filtered = S.incidents.filter(c => {
+        if (S.triageSeverityFilter !== 'ALL' && c.severity !== S.triageSeverityFilter) return false;
+        if (search && !c.title.toLowerCase().includes(search) && !c.code.toLowerCase().includes(search)) return false;
+        return true;
+      });
+
+      qBox.innerHTML = filtered.map(c => `
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4 hover:border-slate-300 transition-all">
+          <div class="space-y-1.5 max-w-2xl">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold text-slate-900">${c.code}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded ${c.severity === 'CRITICAL' ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700'}">
+                ${c.severity}
+              </span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                ${c.status}
+              </span>
+              <span class="text-xs text-slate-400 font-mono">${c.time}</span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-900">${c.title}</h4>
+            <p class="text-xs text-slate-500">${c.dossier.summary.slice(0, 140)}...</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="inspectIncidentCase('${c.id}')" class="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-800">
+              Lihat Dossier
+            </button>
+            <button onclick="openClarificationForCase('${c.id}')" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold">
+              Siaran Pers
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterTriageSeverity(sev) {
+      S.triageSeverityFilter = sev;
+      renderTriageList();
+      playBeep(480, 0.08);
+    }
+
+    // --- DOSSIER MODAL ACTIONS ---
+    function inspectIncidentCase(caseId) {
+      const item = S.incidents.find(x => x.id === caseId);
+      if (!item) return;
+      S.selectedIncident = item;
+
+      document.getElementById('dossier-case-code').textContent = item.code;
+      document.getElementById('dossier-case-severity').textContent = item.severity;
+      document.getElementById('dossier-title').textContent = item.title;
+      document.getElementById('dossier-platform').textContent = item.platform;
+      document.getElementById('dossier-velocity').textContent = item.velocity;
+      document.getElementById('dossier-confidence').textContent = `${item.confidence}%`;
+      document.getElementById('dossier-summary').textContent = item.dossier.summary;
+      document.getElementById('dossier-reverse-search').textContent = item.dossier.reverseSearch;
+      document.getElementById('dossier-acoustic-notes').textContent = item.dossier.acousticNotes;
+      document.getElementById('dossier-mesh-notes').textContent = item.dossier.meshNotes;
+
+      // Psychologist signature status
+      const psychBtn = document.getElementById('sig-action-psychologist');
+      if (item.dossier.signatures.psychologist.signed) {
+        psychBtn.innerHTML = `<span class="text-[10px] font-mono text-emerald-400 font-bold">✓ Signed (${item.dossier.signatures.psychologist.time || 'Baru Saja'})</span>`;
+        document.getElementById('dossier-signature-count').textContent = '3 / 3 Otoritas Selesai Menandatangani';
+      } else {
+        psychBtn.innerHTML = `
+          <button onclick="signPsychologistAction()" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-colors">
+            Tandatangani Validasi
+          </button>
+        `;
+        document.getElementById('dossier-signature-count').textContent = '2 / 3 Otoritas Menandatangani';
+      }
+
+      document.getElementById('modal-dossier').classList.remove('hidden');
+      playBeep(520, 0.1);
+    }
+
+    function signPsychologistAction() {
+      if (!S.selectedIncident) return;
+      S.selectedIncident.dossier.signatures.psychologist.signed = true;
+      S.selectedIncident.dossier.signatures.psychologist.time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+      toast('Tanda tangan Cyberpsychologist resmi disahkan pada ledger!', 'success');
+      playBeep(680, 0.12);
+      inspectIncidentCase(S.selectedIncident.id);
+    }
+
+    function closeDossierModal() {
+      document.getElementById('modal-dossier').classList.add('hidden');
+    }
+
+    // --- CLARIFICATION DISPATCHER ACTIONS ---
+    function openClarificationModal() {
+      closeDossierModal();
+      if (!S.selectedIncident) S.selectedIncident = S.incidents[0];
+      openClarificationForCase(S.selectedIncident.id);
+    }
+
+    function openClarificationForCase(caseId) {
+      const item = S.incidents.find(x => x.id === caseId);
+      if (!item) return;
+      S.selectedIncident = item;
+
+      document.getElementById('clarify-letter-no').textContent = item.officialDebunk?.letterNumber || 'B-1422/Un.09/R/HM.01/09/2026';
+      document.getElementById('clarify-headline-input').value = item.officialDebunk?.headline || item.title;
+      document.getElementById('clarify-statement-input').value = item.officialDebunk?.statement || item.dossier.summary;
+
+      document.getElementById('modal-clarification').classList.remove('hidden');
+      playBeep(540, 0.1);
+    }
+
+    function closeClarificationModal() {
+      document.getElementById('modal-clarification').classList.add('hidden');
+    }
+
+    function dispatchDebunkNow() {
+      if (S.selectedIncident) {
+        S.selectedIncident.status = 'CLARIFICATION_DISPATCHED';
+      }
+      closeClarificationModal();
+      renderRadarIncidents();
+      renderTriageList();
+      if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+      toast('Siaran pers resmi berhasil diterbitkan serentak ke 4 saluran kampus!', 'success');
+      playBeep(720, 0.2);
+    }
+
+    // --- FACULTY ANALYTICS RENDERING ---
+    function renderFacultyAnalytics() {
+      const list = document.getElementById('faculty-stats-list');
+      list.innerHTML = S.faculties.map(f => `
+        <div class="space-y-1">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-slate-800">${f.name}</span>
+            <span class="font-mono text-slate-600">${f.done.toLocaleString()} / ${f.total.toLocaleString()} mhs (<strong class="text-emerald-700">${f.rate}%</strong>)</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+            <div class="bg-emerald-600 h-2.5 rounded-full transition-all duration-500" style="width: ${f.rate}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- GEMINI API KEY MODAL ACTIONS ---
+    function openApiKeyModal() {
+      document.getElementById('apikey-input').value = S.apiKey;
+      document.getElementById('modal-apikey').classList.remove('hidden');
+    }
+
+    function closeApiKeyModal() {
+      document.getElementById('modal-apikey').classList.add('hidden');
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById('apikey-input').value.trim();
+      S.apiKey = key;
+      localStorage.setItem('gemini_api_key', key);
+      closeApiKeyModal();
+      const badge = document.getElementById('gemini-status-badge');
+      if (key) {
+        badge.textContent = 'API Key Tersimpan';
+        badge.className = 'text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-200 text-emerald-950 font-bold';
+        toast('Google Gemini API Key berhasil disimpan!', 'success');
+      } else {
+        badge.textContent = '1.5 Flash Aktif';
+        badge.className = 'text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 font-bold';
+        toast('Menggunakan Smart Simulation Reasoning Engine bawaan', 'info');
+      }
+    }
+
+    // --- SLA REALTIME TIMER SIMULATION ---
+    setInterval(() => {
+      if (S.slaSeconds > 0) S.slaSeconds--;
+      const m = Math.floor(S.slaSeconds / 60).toString().padStart(2, '0');
+      const s = (S.slaSeconds % 60).toString().padStart(2, '0');
+      const display = document.getElementById('sla-countdown-display');
+      if (display) display.textContent = `00:${m}:${s}`;
+    }, 1000);
+
+    // --- INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCurrentScenario();
+      initWaveform();
+      renderRadarIncidents();
+      renderTriageList();
+      renderFacultyAnalytics();
+      console.log('EPISTEMIC-SHIELD Standalone System Initialized Successfully.');
+    });
+  </script>
+</body>
+</html>
